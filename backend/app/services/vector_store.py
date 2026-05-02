@@ -106,5 +106,17 @@ class VectorStore:
             )
             return hits
 
+    def list_all(self) -> list[dict]:
+        with _op_lock:
+            if not self.client.collection_exists(self.collection_name):
+                return []
+            records, _ = self.client.scroll(
+                collection_name=self.collection_name,
+                limit=500,
+                with_payload=True,
+                with_vectors=False,
+            )
+            return [r.payload or {} for r in records]
+
     def _point_id(self, profile_id: str) -> str:
         return str(uuid.uuid5(uuid.NAMESPACE_URL, f"coffee-ninja:{profile_id}"))
