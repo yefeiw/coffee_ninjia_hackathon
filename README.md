@@ -158,6 +158,82 @@ Minimum match fields:
 - `status`
 - `feedback`
 
+## Implemented Skeleton
+
+This repository now contains a lightweight FastAPI webapp with:
+
+- Python backend in `backend/app`
+- static frontend in `frontend`
+- OpenAI Python SDK for profile extraction, match ranking, and match explanations
+- Qdrant local vector DB for candidate profile retrieval
+- seed profiles for a demo-ready matching pool
+- deterministic local fallback when `OPENAI_API_KEY` is not configured
+
+Run locally:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+PYTHONPATH=backend uvicorn app.main:app --reload
+```
+
+Then open `http://127.0.0.1:8000`.
+
+## Profile Process
+
+Flow 1: onboarding.
+
+1. User enters a professional profile: name, headline, location, availability, interests, expertise, goals, current need, preferred formats, and constraints.
+2. Backend sends the raw intake to the OpenAI SDK.
+3. LLM normalizes messy text into a `MemberProfile` with structured arrays and a concise `profile_summary`.
+4. Backend builds `search_text` from the structured profile.
+5. Backend embeds `search_text` and upserts the profile into Qdrant.
+6. Frontend shows the generated profile JSON so the organizer can inspect what the system thinks it knows.
+
+Profile output:
+
+- `id`
+- `name`
+- `headline`
+- `location`
+- `availability`
+- `interests`
+- `expertise`
+- `goals`
+- `current_need`
+- `preferred_formats`
+- `constraints`
+- `profile_summary`
+- `search_text`
+- `source`
+
+## Matching Process
+
+Flow 2: describe a need and generate matches.
+
+1. User describes what they need right now in natural language.
+2. Backend combines the user profile and current need into a retrieval query.
+3. Backend embeds the query and searches Qdrant for relevant candidate profiles.
+4. Backend sends the requester, need, and retrieved candidates to the OpenAI SDK.
+5. LLM returns 2-3 ranked matches with grounded evidence, risks, suggested activity, conversation starters, and an intro message.
+6. Frontend displays match cards that explain why each person is relevant.
+
+Match output:
+
+- `candidate_id`
+- `candidate_name`
+- `candidate_headline`
+- `score`
+- `match_type`
+- `why_now`
+- `evidence`
+- `suggested_activity`
+- `conversation_starters`
+- `risks`
+- `next_step_message`
+
 ## Reference Products
 
 These references shape the product direction:
@@ -195,13 +271,13 @@ Coffee Ninja should feel like a community-native layer over Luma, Slack, Discord
 
 ## Suggested Tech Stack
 
-For a fast hackathon prototype:
+For this hackathon prototype:
 
-- Frontend: Next.js or Vite React
-- Backend: FastAPI or Next.js API routes
-- Storage: SQLite, Supabase, or local JSON for demo
-- AI: OpenAI API for profile extraction, match rationale, and intro generation
-- Embeddings: optional, for interest similarity search
+- Frontend: static HTML/CSS/JS served by FastAPI
+- Backend: FastAPI
+- Vector DB: local Qdrant file store
+- AI: OpenAI Python SDK for profile extraction, match ranking, and intro generation
+- Embeddings: OpenAI embeddings with local fallback for demo resilience
 
 ## Success Metrics
 

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coffee Ninja</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>Coffee Ninja</h1>
+          <p>Professional meetup matching for high-signal community conversations.</p>
+        </div>
+        <div class="status" id="modelStatus">Checking backend</div>
+      </header>
+
+      <nav class="tabs" aria-label="Coffee Ninja flows">
+        <button class="tab active" data-panel="onboardingPanel">1. Onboarding</button>
+        <button class="tab" data-panel="matchingPanel">2. Matching</button>
+      </nav>
+
+      <section class="panel active" id="onboardingPanel">
+        <div class="sectionHeader">
+          <h2>Set Up User Profile</h2>
+          <p>Collect the professional signals the matcher needs: intent, expertise, availability, and constraints.</p>
+        </div>
+
+        <form id="profileForm" class="formGrid">
+          <label>
+            Name
+            <input name="name" required value="Yefei Wang" />
+          </label>
+          <label>
+            Headline
+            <input name="headline" value="AI builder exploring community matching tools" />
+          </label>
+          <label>
+            Location
+            <input name="location" value="Mountain View / Palo Alto" />
+          </label>
+          <label>
+            Availability
+            <input name="availability" value="Saturday afternoon, weekday coffee" />
+          </label>
+          <label>
+            Interests
+            <textarea name="interests">AI agents, community tooling, professional networking, hackathon demos</textarea>
+          </label>
+          <label>
+            Expertise
+            <textarea name="expertise">Python backend, LLM apps, product prototyping</textarea>
+          </label>
+          <label>
+            Goals
+            <textarea name="goals">Find collaborators, validate Coffee Ninja, make professional meetups more useful</textarea>
+          </label>
+          <label>
+            Current Need
+            <textarea name="current_need">I want to meet people who can help turn Coffee Ninja into a compelling hackathon demo and real community workflow.</textarea>
+          </label>
+          <label>
+            Preferred Formats
+            <input name="preferred_formats" value="coffee, pair hacking, demo critique" />
+          </label>
+          <label>
+            Constraints
+            <input name="constraints" value="professional context only, no generic recruiting" />
+          </label>
+          <div class="actions">
+            <button type="submit">Generate Profile</button>
+          </div>
+        </form>
+
+        <div class="resultBlock" id="profileResult" hidden></div>
+      </section>
+
+      <section class="panel" id="matchingPanel">
+        <div class="sectionHeader">
+          <h2>Describe Need and Generate Matches</h2>
+          <p>Search Qdrant for relevant people, then use the LLM to rank 2-3 matches with evidence.</p>
+        </div>
+
+        <form id="matchForm" class="matchForm">
+          <label>
+            What do you need right now?
+            <textarea name="need" required>I need 2-3 professional matches: one person who can critique the product demo, one who understands community growth, and one technical builder who can sanity-check the Qdrant/OpenAI architecture.</textarea>
+          </label>
+          <div class="actions">
+            <button type="submit">Generate Matches</button>
+          </div>
+        </form>
+
+        <div class="resultBlock" id="matchResult" hidden></div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
