@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -971,176 +971,108 @@ function renderMatches() {
           ${needLbls.map(l=>`<span class="you-tag">Needs: ${l}</span>`).join('')}
           ${offerLbls.map(l=>`<span class="you-tag">Offers: ${l}</span>`).join('')}
         </div>
-        <div class="status" id="modelStatus">Checking backend</div>
-      </header>
+      </div>
+    </div>
 
-      <nav class="tabs" aria-label="Coffee Ninja flows">
-        <button class="tab active" data-panel="onboardingPanel">1. Onboarding</button>
-        <button class="tab" data-panel="matchingPanel">2. Matching</button>
-        <button class="tab" data-panel="chatPanel">3. Chat</button>
-      </nav>
+    ${S.apiMatches.map(m => card(m, needLbls, offerLbls)).join('')}
 
-      <section class="panel active" id="onboardingPanel">
-        <div class="sectionHeader">
-          <h2>Set Up User Profile</h2>
-          <p>Collect the professional signals the matcher needs: intent, expertise, availability, and constraints.</p>
+    <div class="match-footer">
+      <div class="mf-stat"><div class="mf-n">${count}</div><div class="mf-l">matches found</div></div>
+      <div class="mf-stat"><div class="mf-n">AI</div><div class="mf-l">ranked by intent fit</div></div>
+      <div class="mf-stat"><div class="mf-n">1:1</div><div class="mf-l">warm intro ready</div></div>
+    </div>
+  </div>`;
+}
+
+function card(m, userNeedsLbls, userOffersLbls) {
+  const isInt = S.interested[m.candidate_id];
+  const score = Math.round((m.score || 0) * 100);
+  const stars  = score>=80 ? '★★★' : score>=60 ? '★★☆' : '★☆☆';
+  const type   = (m.match_type || 'peer').toLowerCase();
+  const badgeCls = type.includes('mutual') ? 'badge-mutual' : type.includes('give') || type.includes('mentor') ? 'badge-give' : 'badge-peer';
+  const typeLbl  = type.includes('mutual') ? '⭐ Mutual Exchange' : type.includes('give') || type.includes('mentor') ? '🌱 Give-First' : '🤜 Peer Match';
+  const avColor  = nameColor(m.candidate_name);
+  const avInit   = m.candidate_name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+
+  const youWant  = userNeedsLbls.join(', ') || 'Professional growth';
+  const youHave  = userOffersLbls.join(', ') || 'Your unique skills';
+  const theyDid  = m.evidence && m.evidence[0] ? m.evidence[0] : m.why_now;
+  const theyWant = m.evidence && m.evidence[1] ? m.evidence[1] : '';
+
+  const promptEmojis = ['🔍','🎯','💡','🤝','⚡'];
+  const prompts = (m.conversation_starters || []).slice(0,2).map((txt, i) => ({ em: promptEmojis[i] || '💬', txt }));
+
+  const evidenceExtra = (m.evidence || []).slice(2);
+
+  const actionHtml = isInt
+    ? `<div class="interested-state">
+        <div class="int-icon">☕</div>
+        <div class="int-title">You're matched with ${esc(m.candidate_name)}</div>
+        <div class="int-msg">Coffee Ninja will send ${esc(m.candidate_name)} a warm intro note. Most matches respond within 24–48 hours.</div>
+        ${m.next_step_message ? `<div class="intro-preview">
+          <div class="intro-lbl">Your intro — preview</div>
+          <div class="intro-txt">${esc(m.next_step_message)}</div>
+        </div>` : ''}
+      </div>`
+    : `<button class="btn-interested" data-a="interested" data-mid="${m.candidate_id}">☕ I'm Interested</button>`;
+
+  return `
+  <div class="match-card" id="card-${m.candidate_id}">
+    <div class="card-head">
+      <div class="match-av" style="background:${avColor}">${avInit}</div>
+      <div class="card-meta">
+        <div class="card-name">${esc(m.candidate_name)}</div>
+        <div class="card-headline">${esc(m.candidate_headline)}</div>
+        ${theyDid ? `<div class="card-bg">${esc(theyDid.length > 80 ? theyDid.slice(0,80)+'…' : theyDid)}</div>` : ''}
+        <div class="card-score">${stars} ${score}% match</div>
+      </div>
+      <span class="type-badge ${badgeCls}">${typeLbl}</span>
+    </div>
+
+    <div class="card-section">
+      <div class="section-lbl">Why this match</div>
+      <div class="exchange">
+        <div class="ex-cell you">
+          <div class="ex-dir you">YOUR GOAL</div>
+          <div class="ex-text">${esc(youWant)}</div>
         </div>
-
-        <form id="profileForm" class="formGrid">
-          <label>
-            Name
-            <input name="name" required value="Yefei Wang" />
-          </label>
-          <label>
-            Headline
-            <input name="headline" value="AI builder exploring community matching tools" />
-          </label>
-          <label>
-            Company
-            <input name="company" value="Coffee Ninja" />
-          </label>
-          <label>
-            Level
-            <input name="level" value="Builder" />
-          </label>
-          <label>
-            Years
-            <input name="years" value="8 years" />
-          </label>
-          <label>
-            Location
-            <input name="location" value="Mountain View / Palo Alto" />
-          </label>
-          <label>
-            Availability
-            <input name="availability" value="Saturday afternoon, weekday coffee" />
-          </label>
-          <div class="chipField">
-            <span>I can help with</span>
-            <div class="chipGroup" data-chip-target="can_help_with">
-              <button type="button" data-value="Python backend">Python backend</button>
-              <button type="button" data-value="LLM apps">LLM apps</button>
-              <button type="button" data-value="product prototyping">Product prototyping</button>
-              <button type="button" data-value="community tooling">Community tooling</button>
-            </div>
-            <input name="can_help_with" value="Python backend, LLM apps, product prototyping" />
-          </div>
-          <div class="chipField">
-            <span>I want help with</span>
-            <div class="chipGroup" data-chip-target="want_help_with">
-              <button type="button" data-value="demo storytelling">Demo storytelling</button>
-              <button type="button" data-value="community growth">Community growth</button>
-              <button type="button" data-value="Qdrant architecture">Qdrant architecture</button>
-              <button type="button" data-value="AI PM transition">AI PM transition</button>
-            </div>
-            <input name="want_help_with" value="demo storytelling, community growth, Qdrant architecture" />
-          </div>
-          <div class="chipField">
-            <span>Conversation style</span>
-            <div class="chipGroup single" data-chip-target="conversation_style">
-              <button type="button" data-value="tactical">Tactical</button>
-              <button type="button" data-value="strategic">Strategic</button>
-              <button type="button" data-value="casual">Casual</button>
-            </div>
-            <input name="conversation_style" value="tactical" />
-          </div>
-          <label>
-            Interests
-            <textarea name="interests">AI agents, community tooling, professional networking, hackathon demos</textarea>
-          </label>
-          <label>
-            Expertise
-            <textarea name="expertise">Python backend, LLM apps, product prototyping</textarea>
-          </label>
-          <label>
-            Goals
-            <textarea name="goals">Find collaborators, validate Coffee Ninja, make professional meetups more useful</textarea>
-          </label>
-          <label>
-            Current Need
-            <textarea name="current_need">I want to meet people who can help turn Coffee Ninja into a compelling hackathon demo and real community workflow.</textarea>
-          </label>
-          <label>
-            Preferred Formats
-            <input name="preferred_formats" value="coffee, pair hacking, demo critique" />
-          </label>
-          <label>
-            Constraints
-            <input name="constraints" value="professional context only, no generic recruiting" />
-          </label>
-          <div class="actions">
-            <button type="submit">Generate Profile</button>
-          </div>
-        </form>
-
-        <div class="resultBlock" id="profileResult" hidden></div>
-      </section>
-
-      <section class="panel" id="matchingPanel">
-        <div class="sectionHeader">
-          <h2>Describe Need and Generate Matches</h2>
-          <p>Search Qdrant for relevant people, then use the LLM to rank 2-3 matches with evidence.</p>
+        <div class="ex-cell them">
+          <div class="ex-dir them">THEIR JOURNEY</div>
+          <div class="ex-text">${esc(theyDid)}</div>
         </div>
-
-        <form id="matchForm" class="matchForm">
-          <label>
-            What do you need right now?
-            <textarea name="need" required>I need 2-3 professional matches: one product mentor who can critique the demo, one community growth person, and one technical builder who can sanity-check the Qdrant/OpenAI architecture.</textarea>
-          </label>
-          <div class="actions">
-            <button type="submit">Generate Matches</button>
-          </div>
-        </form>
-
-        <div class="resultBlock" id="matchResult" hidden></div>
-      </section>
-
-      <section class="panel" id="chatPanel">
-        <div class="sectionHeader">
-          <h2>Conversation Management</h2>
-          <p>Create a lightweight two-person conversation and exchange messages after a match.</p>
+        ${theyWant ? `
+        <div class="ex-cell them">
+          <div class="ex-dir them">THEIR NEED</div>
+          <div class="ex-text">${esc(theyWant)}</div>
+        </div>` : ''}
+        <div class="ex-cell you">
+          <div class="ex-dir you">YOUR STRENGTH</div>
+          <div class="ex-text">${esc(youHave)}</div>
         </div>
+      </div>
+      <div class="why-box">
+        <div class="why-text">💡 ${esc(m.why_now)}</div>
+      </div>
+      ${evidenceExtra.length ? `<div class="evidence-list">${evidenceExtra.map(e=>`<div class="evidence-item">• ${esc(e)}</div>`).join('')}</div>` : ''}
+    </div>
 
-        <form id="conversationForm" class="formGrid">
-          <label>
-            My ID
-            <input name="my_id" required />
-          </label>
-          <label>
-            My Name
-            <input name="my_name" required />
-          </label>
-          <label>
-            Other User ID
-            <input name="other_id" required value="sample_zara_ai_pm" />
-          </label>
-          <label>
-            Other User Name
-            <input name="other_name" required value="Zara Zhang" />
-          </label>
-          <label>
-            Conversation Title
-            <input name="title" value="Coffee Ninja follow-up" />
-          </label>
-          <div class="actions">
-            <button type="button" id="refreshConversationsButton">Refresh</button>
-            <button type="submit">Open Conversation</button>
-          </div>
-        </form>
+    ${prompts.length ? `
+    <div class="card-section">
+      <div class="section-lbl">Start the conversation with</div>
+      <div class="prompt-list">
+        ${prompts.map(p=>`
+        <div class="prompt-item">
+          <span class="prompt-ico">${p.em}</span>
+          <span class="prompt-txt">${esc(p.txt)}</span>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
 
-        <div class="chatLayout">
-          <aside class="conversationList" id="conversationList"></aside>
-          <section class="threadPanel">
-            <div class="threadHeader" id="threadHeader">No conversation selected</div>
-            <div class="messageList" id="messageList"></div>
-            <form id="messageForm" class="messageForm">
-              <textarea name="body" required placeholder="Write a short professional follow-up..."></textarea>
-              <button type="submit">Send</button>
-            </form>
-          </section>
-        </div>
-      </section>
-    </main>
+    ${m.suggested_activity ? `
+    <div class="card-section" style="border-bottom:none">
+      <div class="section-lbl">Suggested activity</div>
+      <span class="activity-tag">☕ ${esc(m.suggested_activity)}</span>
+    </div>` : ''}
 
     <div class="card-action">${actionHtml}</div>
   </div>`;
