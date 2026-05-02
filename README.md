@@ -181,6 +181,20 @@ PYTHONPATH=backend uvicorn app.main:app --reload
 
 Then open `http://127.0.0.1:8000`.
 
+Logs are written to both the terminal and `logs/coffee_ninja.log`.
+
+Monitor logs in another terminal:
+
+```bash
+tail -f logs/coffee_ninja.log
+```
+
+Filter matching stages:
+
+```bash
+tail -f logs/coffee_ninja.log | grep 'matching.'
+```
+
 ## Profile Process
 
 Flow 1: onboarding.
