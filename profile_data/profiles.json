@@ -91,5 +91,73 @@
     "profile_summary": "Engineer. Can help with Structured problem solving 7–10 years experience.. Wants help with AI / ML product thinking.",
     "search_text": "Daniel\nEngineer\nAI / ML product thinking\nEngineer. Can help with Structured problem solving 7–10 years experience.. Wants help with AI / ML product thinking.\nAI / ML product thinking\nStructured problem solving 7–10 years experience.\nAI / ML product thinking\ncoffee, conversation\nprofessional context only",
     "source": "user"
+  },
+  {
+    "id": "user_405942dec573",
+    "name": "Daniel",
+    "headline": "Founder",
+    "location": "",
+    "availability": "",
+    "can_help_with": [],
+    "want_help_with": [],
+    "company": "",
+    "level": "",
+    "years": "",
+    "years_experience": null,
+    "conversation_style": null,
+    "interests": [
+      "Break into Product Management"
+    ],
+    "expertise": [
+      "Structured problem solving 10+ years experience."
+    ],
+    "goals": [
+      "Break into Product Management"
+    ],
+    "current_need": "Break into Product Management",
+    "preferred_formats": [
+      "coffee",
+      "conversation"
+    ],
+    "constraints": [
+      "professional context only"
+    ],
+    "profile_summary": "Founder. Can help with Structured problem solving 10+ years experience.. Wants help with Break into Product Management.",
+    "search_text": "Daniel\nFounder\nBreak into Product Management\nFounder. Can help with Structured problem solving 10+ years experience.. Wants help with Break into Product Management.\nBreak into Product Management\nStructured problem solving 10+ years experience.\nBreak into Product Management\ncoffee, conversation\nprofessional context only",
+    "source": "user"
+  },
+  {
+    "id": "user_764a3f81343a",
+    "name": "Daniel",
+    "headline": "Strategy Consultant",
+    "location": "",
+    "availability": "",
+    "can_help_with": [],
+    "want_help_with": [],
+    "company": "",
+    "level": "",
+    "years": "",
+    "years_experience": null,
+    "conversation_style": null,
+    "interests": [
+      "Break into Product Management"
+    ],
+    "expertise": [
+      "Data analysis & storytelling 10+ years experience."
+    ],
+    "goals": [
+      "Break into Product Management"
+    ],
+    "current_need": "Break into Product Management",
+    "preferred_formats": [
+      "coffee",
+      "conversation"
+    ],
+    "constraints": [
+      "professional context only"
+    ],
+    "profile_summary": "Strategy Consultant. Can help with Data analysis & storytelling 10+ years experience.. Wants help with Break into Product Management.",
+    "search_text": "Daniel\nStrategy Consultant\nBreak into Product Management\nStrategy Consultant. Can help with Data analysis & storytelling 10+ years experience.. Wants help with Break into Product Management.\nBreak into Product Management\nData analysis & storytelling 10+ years experience.\nBreak into Product Management\ncoffee, conversation\nprofessional context only",
+    "source": "user"
   }
 ]
