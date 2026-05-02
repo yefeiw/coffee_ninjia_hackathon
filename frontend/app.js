@@ -2,6 +2,7 @@ const state = {
   profile: JSON.parse(localStorage.getItem("coffee_ninja_profile") || "null"),
   activeConversation: null,
   conversations: [],
+  interestedMatches: JSON.parse(localStorage.getItem("coffee_ninja_interested") || "{}"),
 };
 
 const modelStatus = document.querySelector("#modelStatus");
@@ -29,8 +30,40 @@ document.querySelectorAll(".tab").forEach((tab) => {
   });
 });
 
+document.querySelectorAll(".chipGroup").forEach((group) => {
+  const input = profileForm.elements[group.dataset.chipTarget];
+  syncChipsFromInput(group, input);
+  group.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-value]");
+    if (!button) return;
+    if (group.classList.contains("single")) {
+      group.querySelectorAll("button").forEach((item) => item.classList.remove("selected"));
+      button.classList.add("selected");
+      input.value = button.dataset.value;
+      return;
+    }
+    button.classList.toggle("selected");
+    input.value = Array.from(group.querySelectorAll(".selected"))
+      .map((item) => item.dataset.value)
+      .join(", ");
+  });
+});
+
 document.addEventListener("click", (event) => {
   const chatButton = event.target.closest("[data-start-chat]");
+  const interestedButton = event.target.closest("[data-interested]");
+  if (interestedButton) {
+    state.interestedMatches[interestedButton.dataset.candidateId] = true;
+    localStorage.setItem("coffee_ninja_interested", JSON.stringify(state.interestedMatches));
+    const status = document.querySelector(
+      `[data-interest-status="${CSS.escape(interestedButton.dataset.candidateId)}"]`,
+    );
+    if (status) {
+      status.textContent = "Interested noted. Warm intro is ready.";
+      status.hidden = false;
+    }
+    return;
+  }
   if (!chatButton) return;
   syncChatIdentityFields();
   conversationForm.elements.other_id.value = chatButton.dataset.candidateId;
@@ -180,6 +213,11 @@ function renderProfile(profile, usedLlm) {
         <span class="pill">${usedLlm ? "LLM structured" : "Local fallback"}</span>
         <span class="pill">${escapeHtml(profile.location || "No location")}</span>
         <span class="pill">${escapeHtml(profile.availability || "No availability")}</span>
+        <span class="pill">${escapeHtml(profile.conversation_style || "No style")}</span>
+      </div>
+      <div class="valueGrid">
+        <div><strong>I can help with</strong><p>${escapeHtml((profile.can_help_with || []).join(", ") || "Not set")}</p></div>
+        <div><strong>I want help with</strong><p>${escapeHtml((profile.want_help_with || []).join(", ") || "Not set")}</p></div>
       </div>
     </div>
     <pre>${escapeHtml(JSON.stringify(profile, null, 2))}</pre>
@@ -193,8 +231,18 @@ function renderMatches(data) {
         <article class="matchCard">
           <h3>${escapeHtml(match.candidate_name)}</h3>
           <p>${escapeHtml(match.candidate_headline)}</p>
-          <p class="score">Score ${Number(match.score).toFixed(2)} · ${escapeHtml(match.match_type)}</p>
-          <p>${escapeHtml(match.why_now)}</p>
+          <div class="meta">
+            <span class="pill">${escapeHtml(match.match_type)}</span>
+            <span class="pill">Score ${Number(match.score).toFixed(2)}</span>
+          </div>
+          <div class="exchangeGrid">
+            <div><strong>You want</strong><p>${escapeHtml(match.you_want || "A useful professional conversation")}</p></div>
+            <div><strong>They did</strong><p>${escapeHtml(match.they_did || match.why_now)}</p></div>
+            <div><strong>They want</strong><p>${escapeHtml(match.they_want || "A relevant professional exchange")}</p></div>
+            <div><strong>You have</strong><p>${escapeHtml(match.you_have || "Applied AI and community context")}</p></div>
+          </div>
+          <h3>Why this matters</h3>
+          <p>${escapeHtml(match.why_this_matters || match.why_now)}</p>
           <h3>Evidence</h3>
           <ul>${match.evidence.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
           <h3>Activity</h3>
@@ -203,6 +251,10 @@ function renderMatches(data) {
           <ul>${match.conversation_starters.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
           <h3>Intro</h3>
           <p>${escapeHtml(match.next_step_message)}</p>
+          <p class="interestStatus" data-interest-status="${escapeHtml(match.candidate_id)}" ${state.interestedMatches[match.candidate_id] ? "" : "hidden"}>Interested noted. Warm intro is ready.</p>
+          <button type="button" data-interested data-candidate-id="${escapeHtml(match.candidate_id)}">
+            Interested
+          </button>
           <button
             type="button"
             data-start-chat
@@ -324,6 +376,20 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function syncChipsFromInput(group, input) {
+  const selected = new Set(
+    String(input.value || "")
+      .split(",")
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean),
+  );
+  group.querySelectorAll("button[data-value]").forEach((button) => {
+    if (selected.has(button.dataset.value.toLowerCase())) {
+      button.classList.add("selected");
+    }
+  });
 }
 
 if (state.profile) {

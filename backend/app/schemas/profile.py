@@ -6,6 +6,12 @@ class ProfileIntake(BaseModel):
     headline: str = ""
     location: str = ""
     availability: str = ""
+    can_help_with: str = ""
+    want_help_with: str = ""
+    company: str = ""
+    level: str = ""
+    years: str = ""
+    conversation_style: str = ""
     interests: str = ""
     expertise: str = ""
     goals: str = ""
@@ -20,6 +26,12 @@ class MemberProfile(BaseModel):
     headline: str
     location: str
     availability: str
+    can_help_with: list[str] = Field(default_factory=list)
+    want_help_with: list[str] = Field(default_factory=list)
+    company: str = ""
+    level: str = ""
+    years: str = ""
+    conversation_style: str = ""
     interests: list[str]
     expertise: list[str]
     goals: list[str]
