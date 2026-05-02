@@ -199,7 +199,7 @@ tail -f logs/coffee_ninja.log | grep 'matching.'
 
 Flow 1: onboarding.
 
-1. User enters a professional profile: name, headline, location, availability, interests, expertise, goals, current need, preferred formats, and constraints.
+1. User enters a professional value-exchange profile: name, headline, experience signals, what they can help with, what they want help with, conversation style, availability, interests, goals, and constraints.
 2. Backend sends the raw intake to the OpenAI SDK.
 3. LLM normalizes messy text into a `MemberProfile` with structured arrays and a concise `profile_summary`.
 4. Backend builds `search_text` from the structured profile.
@@ -213,6 +213,12 @@ Profile output:
 - `headline`
 - `location`
 - `availability`
+- `can_help_with`
+- `want_help_with`
+- `company`
+- `level`
+- `years`
+- `conversation_style`
 - `interests`
 - `expertise`
 - `goals`
@@ -232,7 +238,7 @@ Flow 2: describe a need and generate matches.
 3. Backend embeds the query and searches Qdrant for relevant candidate profiles.
 4. Backend sends the requester, need, and retrieved candidates to the OpenAI SDK.
 5. LLM returns 2-3 ranked matches with grounded evidence, risks, suggested activity, conversation starters, and an intro message.
-6. Frontend displays match cards that explain why each person is relevant.
+6. Frontend displays match cards that explain why each person is relevant using a value-exchange structure.
 
 The backend matching flow has six logged stages:
 
@@ -249,6 +255,15 @@ Retrieval and ranking are intentionally separate:
 - Ranking is LLM-first. It receives only the retrieved candidate pool and returns the final 2-3 matches with evidence, risks, suggested activity, and intro copy.
 - Local ranking is a fallback path, not the main product behavior.
 
+Match cards use the Claire demo structure:
+
+- Match type: `Give-first match`, `Mutual exchange`, or `Peer match`
+- `You want -> They did`
+- `They want -> You have`
+- Why this matters
+- What to ask
+- Interested action
+
 Match output:
 
 - `candidate_id`
@@ -256,7 +271,12 @@ Match output:
 - `candidate_headline`
 - `score`
 - `match_type`
+- `you_want`
+- `they_did`
+- `they_want`
+- `you_have`
 - `why_now`
+- `why_this_matters`
 - `evidence`
 - `suggested_activity`
 - `conversation_starters`

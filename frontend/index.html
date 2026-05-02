@@ -1,1166 +1,189 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coffee Ninja ☕</title>
-  <style>
-    :root {
-      --espresso:      #1C0A00;
-      --coffee-dark:   #5C3317;
-      --coffee:        #7B4A2D;
-      --latte:         #C68642;
-      --latte-light:   #E8A96B;
-      --cream:         #FFF8F1;
-      --foam:          #FEF0E2;
-      --foam-border:   #EDD5B8;
-      --white:         #FFFFFF;
-      --text-primary:  #1C0A00;
-      --text-secondary:#6B4530;
-      --text-muted:    #9B7B66;
-      --success:       #1F6E3F;
-      --success-bg:    #EBF5EE;
-      --success-border:#A8D5B8;
-      --peer:          #1D4ED8;
-      --peer-bg:       #EEF4FF;
-      --peer-border:   #BFDBFE;
-      --border:        #E8D4C0;
-      --shadow:        0 2px 16px rgba(92,51,23,0.08);
-      --shadow-hover:  0 8px 32px rgba(92,51,23,0.16);
-    }
-
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-      background: var(--cream);
-      color: var(--text-primary);
-      min-height: 100vh;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .screen { animation: screenIn .35s cubic-bezier(.4,0,.2,1); }
-
-    @keyframes screenIn {
-      from { opacity:0; transform:translateY(14px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
-
-    /* ════ WELCOME ════ */
-    .welcome {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 48px 24px;
-      text-align: center;
-      background: radial-gradient(ellipse 80% 60% at 60% -10%, rgba(198,134,66,.18) 0%, transparent 70%),
-                  radial-gradient(ellipse 60% 50% at -10% 80%, rgba(92,51,23,.08) 0%, transparent 70%),
-                  var(--cream);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      margin-bottom: 44px;
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--coffee-dark);
-      letter-spacing: -.4px;
-    }
-    .logo-cup { font-size: 26px; }
-
-    .welcome-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--white);
-      border: 1px solid var(--foam-border);
-      border-radius: 100px;
-      padding: 5px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--coffee);
-      margin-bottom: 22px;
-      box-shadow: 0 1px 4px rgba(92,51,23,.06);
-      letter-spacing: .2px;
-    }
-
-    .welcome-title {
-      font-size: clamp(34px, 6vw, 56px);
-      font-weight: 900;
-      color: var(--espresso);
-      line-height: 1.1;
-      letter-spacing: -2px;
-      margin-bottom: 18px;
-      max-width: 580px;
-    }
-    .welcome-title em {
-      font-style: normal;
-      background: linear-gradient(135deg, #C68642, #5C3317);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .welcome-sub {
-      font-size: 17px;
-      color: var(--text-secondary);
-      max-width: 460px;
-      margin-bottom: 36px;
-      line-height: 1.7;
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, var(--coffee-dark) 0%, #A05A30 100%);
-      color: white;
-      border: none;
-      border-radius: 14px;
-      padding: 16px 36px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all .2s;
-      box-shadow: 0 4px 20px rgba(92,51,23,.32);
-      letter-spacing: -.3px;
-    }
-    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(92,51,23,.42); }
-
-    .social-proof {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 36px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    .avatars { display: flex; }
-    .mini-av {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      border: 2.5px solid var(--cream);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 9px; font-weight: 800; color: white;
-      margin-left: -8px;
-    }
-    .mini-av:first-child { margin-left: 0; }
-
-    .welcome-stats {
-      display: flex;
-      gap: 36px;
-      margin-top: 44px;
-      padding-top: 32px;
-      border-top: 1px solid var(--foam-border);
-    }
-    .stat { text-align: center; }
-    .stat-n { font-size: 26px; font-weight: 900; color: var(--coffee-dark); letter-spacing: -1px; }
-    .stat-l { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-    /* ════ ONBOARDING ════ */
-    .onboarding {
-      max-width: 540px;
-      margin: 0 auto;
-      padding: 28px 22px 80px;
-    }
-
-    .ob-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 28px;
-    }
-    .ob-logo { font-size: 15px; font-weight: 800; color: var(--coffee-dark); display: flex; align-items: center; gap: 7px; }
-    .ob-step-count { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-
-    .progress-track {
-      height: 3px;
-      background: var(--foam-border);
-      border-radius: 2px;
-      margin-bottom: 36px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--coffee-dark), var(--latte));
-      border-radius: 2px;
-      transition: width .45s cubic-bezier(.4,0,.2,1);
-    }
-
-    .step-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: var(--foam);
-      border: 1px solid var(--foam-border);
-      border-radius: 100px;
-      padding: 4px 12px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--coffee);
-      letter-spacing: .5px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .step-title {
-      font-size: clamp(22px, 4.5vw, 30px);
-      font-weight: 900;
-      color: var(--espresso);
-      letter-spacing: -1px;
-      margin-bottom: 6px;
-      line-height: 1.2;
-    }
-    .step-sub {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: 26px;
-      line-height: 1.6;
-    }
-
-    .field-group { margin-bottom: 18px; }
-    .field-label {
-      display: block;
-      font-size: 12px; font-weight: 700;
-      color: var(--text-secondary);
-      text-transform: uppercase; letter-spacing: .5px;
-      margin-bottom: 7px;
-    }
-    .field-input, .field-textarea {
-      width: 100%;
-      padding: 13px 15px;
-      border: 1.5px solid var(--border);
-      border-radius: 12px;
-      font-size: 15px;
-      color: var(--text-primary);
-      background: var(--white);
-      font-family: inherit;
-      outline: none;
-      transition: all .18s;
-    }
-    .field-input:focus, .field-textarea:focus {
-      border-color: var(--latte);
-      box-shadow: 0 0 0 3px rgba(198,134,66,.14);
-    }
-    .field-input::placeholder, .field-textarea::placeholder { color: var(--text-muted); }
-    .field-textarea { resize: none; min-height: 86px; }
-
-    .role-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
-      margin-bottom: 4px;
-    }
-    .role-tile {
-      padding: 13px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 13px;
-      cursor: pointer;
-      background: var(--white);
-      transition: all .18s;
-      text-align: left;
-    }
-    .role-tile:hover:not(.sel) { border-color: var(--latte); background: var(--foam); }
-    .role-tile.sel { border-color: var(--coffee-dark); background: var(--foam); }
-    .tile-em { font-size: 20px; display: block; margin-bottom: 5px; }
-    .tile-label { font-size: 13px; font-weight: 700; color: var(--text-primary); display: block; }
-    .tile-sub { font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px; }
-
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 9px 15px;
-      border: 1.5px solid var(--border);
-      border-radius: 100px;
-      font-size: 13px; font-weight: 500;
-      cursor: pointer;
-      background: var(--white);
-      color: var(--text-secondary);
-      transition: all .18s;
-      user-select: none;
-    }
-    .chip:hover:not(.sel) { border-color: var(--latte); color: var(--coffee); }
-    .chip.sel { background: var(--coffee-dark); border-color: var(--coffee-dark); color: white; }
-    .chips-hint { font-size: 12px; color: var(--text-muted); }
-
-    .exp-row { display: flex; gap: 8px; margin-bottom: 4px; }
-    .exp-tile {
-      flex: 1;
-      padding: 11px 6px;
-      border: 1.5px solid var(--border);
-      border-radius: 11px;
-      text-align: center;
-      cursor: pointer;
-      background: var(--white);
-      transition: all .18s;
-    }
-    .exp-tile:hover:not(.sel) { border-color: var(--latte); }
-    .exp-tile.sel { border-color: var(--coffee-dark); background: var(--foam); }
-    .exp-n { font-size: 15px; font-weight: 800; color: var(--espresso); display: block; }
-    .exp-l { font-size: 10px; color: var(--text-muted); display: block; margin-top: 2px; }
-
-    .step-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 28px;
-    }
-    .btn-back {
-      padding: 12px 20px;
-      border: 1.5px solid var(--border);
-      border-radius: 11px;
-      font-size: 14px; font-weight: 600;
-      color: var(--text-muted);
-      background: var(--white);
-      cursor: pointer;
-      transition: all .18s;
-    }
-    .btn-back:hover { border-color: var(--coffee); color: var(--coffee); }
-    .btn-next {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 13px 28px;
-      background: linear-gradient(135deg, var(--coffee-dark), #A05A30);
-      border: none;
-      border-radius: 11px;
-      font-size: 14px; font-weight: 700;
-      color: white;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .btn-next:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(92,51,23,.3); }
-    .btn-next:disabled { opacity:.35; cursor:not-allowed; transform:none; box-shadow:none; }
-
-    /* ════ MATCHING ════ */
-    .matching {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 40px 24px;
-      text-align: center;
-      background: radial-gradient(ellipse 70% 55% at 50% 30%, rgba(198,134,66,.14) 0%, transparent 65%), var(--cream);
-    }
-
-    .brew-wrap { position: relative; margin-bottom: 32px; }
-    .brew-ring {
-      width: 90px; height: 90px;
-      border-radius: 50%;
-      border: 3px solid var(--foam-border);
-      border-top-color: var(--coffee);
-      animation: spin 1s linear infinite;
-    }
-    .brew-cup {
-      position: absolute; top:50%; left:50%;
-      transform: translate(-50%,-50%);
-      font-size: 34px;
-      animation: floatBrew 2s ease-in-out infinite;
-    }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    @keyframes floatBrew {
-      0%,100% { transform:translate(-50%,-50%) scale(1); }
-      50%      { transform:translate(-50%,-52%) scale(1.08); }
-    }
-
-    .matching-title {
-      font-size: 24px; font-weight: 800;
-      color: var(--espresso);
-      letter-spacing: -.6px;
-      margin-bottom: 24px;
-    }
-
-    .matching-steps { list-style: none; }
-    .matching-steps li {
-      font-size: 14px;
-      color: var(--text-muted);
-      padding: 5px 0;
-      transition: all .3s;
-    }
-    .matching-steps li.active { color: var(--coffee); font-weight: 700; }
-    .matching-steps li.done  { color: var(--success); }
-
-    .match-error {
-      margin-top: 20px;
-      padding: 14px 18px;
-      background: #FFF0EE;
-      border: 1px solid #FFCFC8;
-      border-radius: 12px;
-      font-size: 14px;
-      color: #B03020;
-      max-width: 400px;
-    }
-
-    /* ════ MATCHES ════ */
-    .matches-wrap {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 28px 18px 64px;
-    }
-
-    .matches-logo {
-      display: flex; align-items: center; gap: 7px;
-      font-size: 15px; font-weight: 800; color: var(--coffee-dark);
-      margin-bottom: 22px;
-    }
-
-    .found-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: var(--success-bg);
-      border: 1px solid var(--success-border);
-      border-radius: 100px;
-      padding: 5px 14px;
-      font-size: 12px; font-weight: 700;
-      color: var(--success);
-      margin-bottom: 11px;
-    }
-
-    .matches-title {
-      font-size: clamp(22px, 4.5vw, 30px);
-      font-weight: 900;
-      color: var(--espresso);
-      letter-spacing: -1px;
-      margin-bottom: 5px;
-      line-height: 1.2;
-    }
-    .matches-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 22px; }
-
-    .your-profile {
-      display: flex;
-      gap: 13px;
-      align-items: flex-start;
-      background: var(--foam);
-      border: 1px solid var(--foam-border);
-      border-radius: 14px;
-      padding: 15px 16px;
-      margin-bottom: 22px;
-    }
-    .you-av {
-      width: 42px; height: 42px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--coffee-dark), var(--coffee));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 800; color: white;
-      flex-shrink: 0;
-    }
-    .you-name { font-size: 14px; font-weight: 700; color: var(--espresso); }
-    .you-role { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    .you-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-    .you-tag {
-      font-size: 11px; font-weight: 500;
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      padding: 2px 9px;
-      color: var(--text-secondary);
-    }
-
-    /* ── MATCH CARD ── */
-    .match-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      margin-bottom: 18px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: box-shadow .2s;
-    }
-    .match-card:hover { box-shadow: var(--shadow-hover); }
-
-    .card-head {
-      display: flex;
-      gap: 13px;
-      align-items: flex-start;
-      padding: 18px 18px 15px;
-      border-bottom: 1px solid var(--foam-border);
-    }
-    .match-av {
-      width: 50px; height: 50px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 800; color: white;
-      flex-shrink: 0;
-    }
-    .card-meta { flex: 1; min-width: 0; }
-    .card-name { font-size: 16px; font-weight: 800; color: var(--espresso); letter-spacing: -.3px; }
-    .card-headline { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-    .card-bg { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
-    .card-score { font-size: 12px; color: var(--latte); font-weight: 700; margin-top: 5px; }
-
-    .type-badge {
-      flex-shrink: 0;
-      font-size: 10px; font-weight: 800;
-      padding: 4px 10px;
-      border-radius: 100px;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      white-space: nowrap;
-    }
-    .badge-mutual { background:#FFF3E0; color:#BF4D00; border:1px solid #FFD09E; }
-    .badge-give   { background:var(--success-bg); color:var(--success); border:1px solid var(--success-border); }
-    .badge-peer   { background:var(--peer-bg); color:var(--peer); border:1px solid var(--peer-border); }
-
-    .card-section {
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--foam-border);
-    }
-    .section-lbl {
-      font-size: 10px; font-weight: 800;
-      text-transform: uppercase; letter-spacing: 1px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .exchange {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .ex-cell {
-      border-radius: 12px;
-      padding: 12px 13px;
-      background: var(--foam);
-    }
-    .ex-cell.you  { border-left: 3px solid var(--latte-light); }
-    .ex-cell.them { border-left: 3px solid var(--coffee-dark); }
-    .ex-dir {
-      font-size: 10px; font-weight: 800;
-      text-transform: uppercase; letter-spacing: .5px;
-      margin-bottom: 5px;
-    }
-    .ex-dir.you  { color: #A06020; }
-    .ex-dir.them { color: var(--coffee-dark); }
-    .ex-text { font-size: 13px; color: var(--text-primary); line-height: 1.45; }
-
-    .why-box {
-      margin-top: 11px;
-      padding: 12px 13px;
-      background: #FFFAF2;
-      border-radius: 11px;
-      border-left: 3px solid var(--latte);
-    }
-    .why-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
-
-    .evidence-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-    .evidence-item {
-      font-size: 12px;
-      color: var(--text-muted);
-      padding: 6px 10px;
-      background: var(--foam);
-      border-radius: 8px;
-      line-height: 1.4;
-    }
-
-    .prompt-list { display: flex; flex-direction: column; gap: 9px; }
-    .prompt-item {
-      display: flex; gap: 10px;
-      align-items: flex-start;
-      background: var(--foam);
-      border-radius: 12px;
-      padding: 12px 13px;
-    }
-    .prompt-ico { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-    .prompt-txt { font-size: 13px; color: var(--text-secondary); line-height: 1.55; font-style: italic; }
-
-    .card-action { padding: 15px 18px; }
-
-    .btn-interested {
-      width: 100%;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 14px;
-      background: linear-gradient(135deg, var(--coffee-dark) 0%, #A05A30 100%);
-      border: none;
-      border-radius: 13px;
-      font-size: 15px; font-weight: 700;
-      color: white;
-      cursor: pointer;
-      transition: all .2s;
-      letter-spacing: -.2px;
-    }
-    .btn-interested:hover { transform:translateY(-1px); box-shadow:0 6px 22px rgba(92,51,23,.32); }
-
-    .interested-state {
-      background: var(--success-bg);
-      border: 1px solid var(--success-border);
-      border-radius: 13px;
-      padding: 18px 16px;
-      text-align: center;
-      animation: screenIn .3s ease;
-    }
-    .int-icon { font-size: 28px; margin-bottom: 8px; }
-    .int-title { font-size: 15px; font-weight: 800; color: var(--success); margin-bottom: 5px; }
-    .int-msg { font-size: 13px; color: #3D6B50; line-height: 1.55; }
-    .intro-preview {
-      background: white;
-      border: 1px solid var(--success-border);
-      border-radius: 11px;
-      padding: 12px 13px;
-      margin-top: 12px;
-      text-align: left;
-    }
-    .intro-lbl {
-      font-size: 10px; font-weight: 800;
-      text-transform: uppercase; letter-spacing: .5px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-    .intro-txt { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
-
-    .activity-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: var(--foam);
-      border: 1px solid var(--foam-border);
-      border-radius: 100px;
-      padding: 4px 12px;
-      font-size: 12px;
-      color: var(--coffee);
-      font-weight: 600;
-      margin-top: 10px;
-    }
-
-    .match-footer {
-      display: flex;
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      margin-top: 24px;
-    }
-    .mf-stat {
-      flex: 1;
-      text-align: center;
-      padding: 16px 8px;
-      background: var(--foam);
-    }
-    .mf-n { font-size: 22px; font-weight: 900; color: var(--espresso); letter-spacing: -.5px; }
-    .mf-l { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.3; }
-
-    .llm-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-      padding: 4px 10px;
-      background: var(--foam);
-      border: 1px solid var(--foam-border);
-      border-radius: 100px;
-    }
-
-    @media (max-width: 480px) {
-      .exchange { grid-template-columns: 1fr; }
-      .welcome-stats { gap: 20px; }
-      .exp-row { flex-wrap: wrap; }
-      .exp-tile { min-width: calc(33% - 6px); }
-    }
-  </style>
-</head>
-<body>
-<div id="app"></div>
-
-<script>
-/* ════ STATE ════ */
-const S = {
-  screen: 'welcome',
-  step: 0,
-  form: {
-    name: '', role: '', roleQuick: '',
-    needs: [], offers: [],
-    exp: '', proud: '',
-  },
-  interested: {},
-  apiMatches: [],
-  apiProfile: null,
-  usedLlm: false,
-  querySummary: '',
-  error: null,
-};
-
-/* ════ ONBOARDING OPTIONS ════ */
-const NEEDS = [
-  { id:'pm',      em:'🚀', label:'Break into Product Management' },
-  { id:'ai',      em:'🤖', label:'AI / ML product thinking' },
-  { id:'leap',    em:'🏃', label:'Consulting → startup / tech leap' },
-  { id:'growth',  em:'📈', label:'Growth & GTM strategy' },
-  { id:'zero',    em:'⚡', label:'Building 0→1 products' },
-  { id:'exec',    em:'🏛️', label:'Executive / leadership track' },
-  { id:'collab',  em:'🤝', label:'Find collaborators / co-founders' },
-  { id:'demo',    em:'🎯', label:'Demo feedback & product critique' },
-];
-
-const OFFERS = [
-  { id:'consulting', em:'📐', label:'Structured problem solving' },
-  { id:'data',       em:'📊', label:'Data analysis & storytelling' },
-  { id:'stk',        em:'🤝', label:'Executive stakeholder management' },
-  { id:'eng',        em:'⚙️', label:'Engineering / technical depth' },
-  { id:'gplay',      em:'🗺️', label:'Growth playbooks & metrics' },
-  { id:'domain',     em:'🏥', label:'Domain expertise (healthcare, finance…)' },
-  { id:'design',     em:'🎨', label:'Product design & UX' },
-  { id:'community',  em:'🌱', label:'Community building' },
-];
-
-/* ════ RENDER ════ */
-function render() {
-  const views = { welcome: renderWelcome, onboarding: renderOnboarding, matching: renderMatching, matches: renderMatches };
-  document.getElementById('app').innerHTML = (views[S.screen] || renderWelcome)();
-  wire();
-}
-
-/* ── WELCOME ── */
-function renderWelcome() {
-  return `
-  <div class="screen welcome">
-    <div class="logo"><span class="logo-cup">☕</span> Coffee Ninja</div>
-    <div class="welcome-badge">✦ Professional matching for high-signal conversations</div>
-    <h1 class="welcome-title">Meet the <em>right people</em><br>to accelerate your next chapter</h1>
-    <p class="welcome-sub">Coffee Ninja matches you on what you genuinely need and what you can genuinely offer — not just titles and mutual connections.</p>
-    <button class="btn-primary" data-a="start">Find my matches <span>→</span></button>
-    <div class="social-proof">
-      <div class="avatars">
-        <div class="mini-av" style="background:#C27046">ZA</div>
-        <div class="mini-av" style="background:#3A6FA8">MY</div>
-        <div class="mini-av" style="background:#4A9C6E">AL</div>
-        <div class="mini-av" style="background:#8B5CF6">NI</div>
-      </div>
-      <span>Community members ready to connect</span>
-    </div>
-    <div class="welcome-stats">
-      <div class="stat"><div class="stat-n">AI</div><div class="stat-l">powered matching</div></div>
-      <div class="stat"><div class="stat-n">2–3</div><div class="stat-l">matches per round</div></div>
-      <div class="stat"><div class="stat-n">1:1</div><div class="stat-l">high-signal intros</div></div>
-    </div>
-  </div>`;
-}
-
-/* ── ONBOARDING ── */
-const STEPS = 4;
-
-function renderOnboarding() {
-  const pct = ((S.step + 1) / STEPS) * 100;
-  const stepFns = [step0, step1, step2, step3];
-  return `
-  <div class="screen onboarding">
-    <div class="ob-top">
-      <div class="ob-logo">☕ Coffee Ninja</div>
-      <div class="ob-step-count">${S.step + 1} / ${STEPS}</div>
-    </div>
-    <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-    ${stepFns[S.step]()}
-  </div>`;
-}
-
-function step0() {
-  const roles = [
-    { id:'consultant', em:'📐', lbl:'Consultant',      sub:'MBB / Big 4 / boutique' },
-    { id:'pm',         em:'🗺️', lbl:'Product Manager', sub:'Tech / startup' },
-    { id:'engineer',   em:'⚙️', lbl:'Engineer',        sub:'Builder / maker' },
-    { id:'founder',    em:'🚀', lbl:'Founder / MBA',    sub:'0→1 / career transition' },
-  ];
-  const canNext = S.form.name.trim() || S.form.role.trim();
-  return `
-  <div class="step-pill">✦ About you</div>
-  <h2 class="step-title">First, who are you?</h2>
-  <p class="step-sub">Just enough context so matches understand where you're coming from.</p>
-  <div class="field-group">
-    <label class="field-label">Your name</label>
-    <input class="field-input" type="text" placeholder="e.g. Alex Chen" data-field="name" value="${esc(S.form.name)}">
-  </div>
-  <div class="field-group">
-    <label class="field-label">Current role (or "in between")</label>
-    <input class="field-input" type="text" placeholder="e.g. Strategy Consultant at BCG" data-field="role" value="${esc(S.form.role)}">
-  </div>
-  <div class="field-group">
-    <label class="field-label">Or pick a quick type</label>
-    <div class="role-grid">
-      ${roles.map(r => `
-      <div class="role-tile ${S.form.roleQuick===r.id?'sel':''}" data-rq="${r.id}">
-        <span class="tile-em">${r.em}</span>
-        <span class="tile-label">${r.lbl}</span>
-        <span class="tile-sub">${r.sub}</span>
-      </div>`).join('')}
-    </div>
-  </div>
-  <div class="step-nav">
-    <div></div>
-    <button class="btn-next" data-a="next" ${canNext?'':'disabled'}>Continue →</button>
-  </div>`;
-}
-
-function step1() {
-  return `
-  <div class="step-pill">🎯 Your needs</div>
-  <h2 class="step-title">What are you trying to figure out?</h2>
-  <p class="step-sub">Pick up to 3 things you genuinely need help with right now. Honesty here makes matches 10× better.</p>
-  <div class="chips">
-    ${NEEDS.map(o => `<div class="chip ${S.form.needs.includes(o.id)?'sel':''}" data-tn="${o.id}">${o.em} ${o.label}</div>`).join('')}
-  </div>
-  <p class="chips-hint">Select 1–3 that resonate most</p>
-  <div class="step-nav">
-    <button class="btn-back" data-a="back">← Back</button>
-    <button class="btn-next" data-a="next" ${S.form.needs.length?'':'disabled'}>Continue →</button>
-  </div>`;
-}
-
-function step2() {
-  return `
-  <div class="step-pill">💡 What you offer</div>
-  <h2 class="step-title">What can you genuinely offer?</h2>
-  <p class="step-sub">Good matches are two-way. What do you bring to the table — even mid-transition?</p>
-  <div class="chips">
-    ${OFFERS.map(o => `<div class="chip ${S.form.offers.includes(o.id)?'sel':''}" data-to="${o.id}">${o.em} ${o.label}</div>`).join('')}
-  </div>
-  <p class="chips-hint">Select 1–3 genuine strengths</p>
-  <div class="step-nav">
-    <button class="btn-back" data-a="back">← Back</button>
-    <button class="btn-next" data-a="next" ${S.form.offers.length?'':'disabled'}>Continue →</button>
-  </div>`;
-}
-
-function step3() {
-  const exps = ['0–2','2–4','4–7','7–10','10+'];
-  return `
-  <div class="step-pill">⚡ Quick context</div>
-  <h2 class="step-title">Almost there.</h2>
-  <p class="step-sub">Two quick questions so matches understand your actual situation.</p>
-  <div class="field-group">
-    <label class="field-label">Years of total experience</label>
-    <div class="exp-row">
-      ${exps.map(e => `
-      <div class="exp-tile ${S.form.exp===e?'sel':''}" data-exp="${e}">
-        <span class="exp-n">${e}</span><span class="exp-l">yrs</span>
-      </div>`).join('')}
-    </div>
-  </div>
-  <div class="field-group">
-    <label class="field-label">One thing you're proud of <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
-    <textarea class="field-textarea" data-field="proud" placeholder="e.g. Shipped a side project with 5K users. Doesn't have to be impressive — just real.">${esc(S.form.proud)}</textarea>
-  </div>
-  <div class="step-nav">
-    <button class="btn-back" data-a="back">← Back</button>
-    <button class="btn-next" data-a="go-match">☕ Find my matches →</button>
-  </div>`;
-}
-
-/* ── MATCHING ── */
-function renderMatching() {
-  const errHtml = S.error
-    ? `<div class="match-error">⚠️ ${esc(S.error)}</div>`
-    : '';
-  return `
-  <div class="screen matching">
-    <div class="brew-wrap">
-      <div class="brew-ring"></div>
-      <div class="brew-cup">☕</div>
-    </div>
-    <h2 class="matching-title">Brewing your matches…</h2>
-    <ul class="matching-steps">
-      <li id="ms1" class="active">Building your profile</li>
-      <li id="ms2">Scanning community profiles</li>
-      <li id="ms3">Scoring mutual value exchange</li>
-      <li id="ms4">Crafting conversation starters</li>
-    </ul>
-    ${errHtml}
-  </div>`;
-}
-
-/* ── MATCHES ── */
-function renderMatches() {
-  const nm   = S.form.name || 'You';
-  const init = nm.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || 'YO';
-  const role = S.form.role || 'Community member';
-  const needLbls  = S.form.needs.map(id => NEEDS.find(o=>o.id===id)?.label).filter(Boolean);
-  const offerLbls = S.form.offers.map(id => OFFERS.find(o=>o.id===id)?.label).filter(Boolean);
-  const count = S.apiMatches.length;
-
-  return `
-  <div class="screen matches-wrap">
-    <div class="matches-logo">☕ Coffee Ninja</div>
-    <div class="found-pill">✓ ${count} match${count!==1?'es':''} found for you</div>
-    <h1 class="matches-title">We found people who make sense</h1>
-    <p class="matches-sub">${esc(S.querySummary) || 'Each match is scored on genuine mutual value — not just who might be nice to know.'}</p>
-    ${S.usedLlm ? '<div class="llm-badge">✨ AI-powered matching</div>' : '<div class="llm-badge">⚙️ Local matching (no API key)</div>'}
-
-    <div class="your-profile">
-      <div class="you-av">${init}</div>
-      <div>
-        <div class="you-name">${esc(nm)}</div>
-        <div class="you-role">${esc(role)}</div>
-        <div class="you-tags">
-          ${needLbls.map(l=>`<span class="you-tag">Needs: ${l}</span>`).join('')}
-          ${offerLbls.map(l=>`<span class="you-tag">Offers: ${l}</span>`).join('')}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coffee Ninja</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>Coffee Ninja</h1>
+          <p>Professional meetup matching for high-signal community conversations.</p>
         </div>
-      </div>
-    </div>
+        <div class="status" id="modelStatus">Checking backend</div>
+      </header>
 
-    ${S.apiMatches.map(m => card(m, needLbls, offerLbls)).join('')}
+      <nav class="tabs" aria-label="Coffee Ninja flows">
+        <button class="tab active" data-panel="onboardingPanel">1. Onboarding</button>
+        <button class="tab" data-panel="matchingPanel">2. Matching</button>
+        <button class="tab" data-panel="chatPanel">3. Chat</button>
+      </nav>
 
-    <div class="match-footer">
-      <div class="mf-stat"><div class="mf-n">${count}</div><div class="mf-l">matches found</div></div>
-      <div class="mf-stat"><div class="mf-n">AI</div><div class="mf-l">ranked by intent fit</div></div>
-      <div class="mf-stat"><div class="mf-n">1:1</div><div class="mf-l">warm intro ready</div></div>
-    </div>
-  </div>`;
-}
-
-function card(m, userNeedsLbls, userOffersLbls) {
-  const isInt = S.interested[m.candidate_id];
-  const score = Math.round((m.score || 0) * 100);
-  const stars  = score>=80 ? '★★★' : score>=60 ? '★★☆' : '★☆☆';
-  const type   = (m.match_type || 'peer').toLowerCase();
-  const badgeCls = type.includes('mutual') ? 'badge-mutual' : type.includes('give') || type.includes('mentor') ? 'badge-give' : 'badge-peer';
-  const typeLbl  = type.includes('mutual') ? '⭐ Mutual Exchange' : type.includes('give') || type.includes('mentor') ? '🌱 Give-First' : '🤜 Peer Match';
-  const avColor  = nameColor(m.candidate_name);
-  const avInit   = m.candidate_name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-
-  const youWant  = userNeedsLbls.join(', ') || 'Professional growth';
-  const youHave  = userOffersLbls.join(', ') || 'Your unique skills';
-  const theyDid  = m.evidence && m.evidence[0] ? m.evidence[0] : m.why_now;
-  const theyWant = m.evidence && m.evidence[1] ? m.evidence[1] : '';
-
-  const promptEmojis = ['🔍','🎯','💡','🤝','⚡'];
-  const prompts = (m.conversation_starters || []).slice(0,2).map((txt, i) => ({ em: promptEmojis[i] || '💬', txt }));
-
-  const evidenceExtra = (m.evidence || []).slice(2);
-
-  const actionHtml = isInt
-    ? `<div class="interested-state">
-        <div class="int-icon">☕</div>
-        <div class="int-title">You're matched with ${esc(m.candidate_name)}</div>
-        <div class="int-msg">Coffee Ninja will send ${esc(m.candidate_name)} a warm intro note. Most matches respond within 24–48 hours.</div>
-        ${m.next_step_message ? `<div class="intro-preview">
-          <div class="intro-lbl">Your intro — preview</div>
-          <div class="intro-txt">${esc(m.next_step_message)}</div>
-        </div>` : ''}
-      </div>`
-    : `<button class="btn-interested" data-a="interested" data-mid="${m.candidate_id}">☕ I'm Interested</button>`;
-
-  return `
-  <div class="match-card" id="card-${m.candidate_id}">
-    <div class="card-head">
-      <div class="match-av" style="background:${avColor}">${avInit}</div>
-      <div class="card-meta">
-        <div class="card-name">${esc(m.candidate_name)}</div>
-        <div class="card-headline">${esc(m.candidate_headline)}</div>
-        ${theyDid ? `<div class="card-bg">${esc(theyDid.length > 80 ? theyDid.slice(0,80)+'…' : theyDid)}</div>` : ''}
-        <div class="card-score">${stars} ${score}% match</div>
-      </div>
-      <span class="type-badge ${badgeCls}">${typeLbl}</span>
-    </div>
-
-    <div class="card-section">
-      <div class="section-lbl">Why this match</div>
-      <div class="exchange">
-        <div class="ex-cell you">
-          <div class="ex-dir you">YOUR GOAL</div>
-          <div class="ex-text">${esc(youWant)}</div>
+      <section class="panel active" id="onboardingPanel">
+        <div class="sectionHeader">
+          <h2>Set Up User Profile</h2>
+          <p>Collect the professional signals the matcher needs: intent, expertise, availability, and constraints.</p>
         </div>
-        <div class="ex-cell them">
-          <div class="ex-dir them">THEIR JOURNEY</div>
-          <div class="ex-text">${esc(theyDid)}</div>
+
+        <form id="profileForm" class="formGrid">
+          <label>
+            Name
+            <input name="name" required value="Yefei Wang" />
+          </label>
+          <label>
+            Headline
+            <input name="headline" value="AI builder exploring community matching tools" />
+          </label>
+          <label>
+            Company
+            <input name="company" value="Coffee Ninja" />
+          </label>
+          <label>
+            Level
+            <input name="level" value="Builder" />
+          </label>
+          <label>
+            Years
+            <input name="years" value="8 years" />
+          </label>
+          <label>
+            Location
+            <input name="location" value="Mountain View / Palo Alto" />
+          </label>
+          <label>
+            Availability
+            <input name="availability" value="Saturday afternoon, weekday coffee" />
+          </label>
+          <div class="chipField">
+            <span>I can help with</span>
+            <div class="chipGroup" data-chip-target="can_help_with">
+              <button type="button" data-value="Python backend">Python backend</button>
+              <button type="button" data-value="LLM apps">LLM apps</button>
+              <button type="button" data-value="product prototyping">Product prototyping</button>
+              <button type="button" data-value="community tooling">Community tooling</button>
+            </div>
+            <input name="can_help_with" value="Python backend, LLM apps, product prototyping" />
+          </div>
+          <div class="chipField">
+            <span>I want help with</span>
+            <div class="chipGroup" data-chip-target="want_help_with">
+              <button type="button" data-value="demo storytelling">Demo storytelling</button>
+              <button type="button" data-value="community growth">Community growth</button>
+              <button type="button" data-value="Qdrant architecture">Qdrant architecture</button>
+              <button type="button" data-value="AI PM transition">AI PM transition</button>
+            </div>
+            <input name="want_help_with" value="demo storytelling, community growth, Qdrant architecture" />
+          </div>
+          <div class="chipField">
+            <span>Conversation style</span>
+            <div class="chipGroup single" data-chip-target="conversation_style">
+              <button type="button" data-value="tactical">Tactical</button>
+              <button type="button" data-value="strategic">Strategic</button>
+              <button type="button" data-value="casual">Casual</button>
+            </div>
+            <input name="conversation_style" value="tactical" />
+          </div>
+          <label>
+            Interests
+            <textarea name="interests">AI agents, community tooling, professional networking, hackathon demos</textarea>
+          </label>
+          <label>
+            Expertise
+            <textarea name="expertise">Python backend, LLM apps, product prototyping</textarea>
+          </label>
+          <label>
+            Goals
+            <textarea name="goals">Find collaborators, validate Coffee Ninja, make professional meetups more useful</textarea>
+          </label>
+          <label>
+            Current Need
+            <textarea name="current_need">I want to meet people who can help turn Coffee Ninja into a compelling hackathon demo and real community workflow.</textarea>
+          </label>
+          <label>
+            Preferred Formats
+            <input name="preferred_formats" value="coffee, pair hacking, demo critique" />
+          </label>
+          <label>
+            Constraints
+            <input name="constraints" value="professional context only, no generic recruiting" />
+          </label>
+          <div class="actions">
+            <button type="submit">Generate Profile</button>
+          </div>
+        </form>
+
+        <div class="resultBlock" id="profileResult" hidden></div>
+      </section>
+
+      <section class="panel" id="matchingPanel">
+        <div class="sectionHeader">
+          <h2>Describe Need and Generate Matches</h2>
+          <p>Search Qdrant for relevant people, then use the LLM to rank 2-3 matches with evidence.</p>
         </div>
-        ${theyWant ? `
-        <div class="ex-cell them">
-          <div class="ex-dir them">THEIR NEED</div>
-          <div class="ex-text">${esc(theyWant)}</div>
-        </div>` : ''}
-        <div class="ex-cell you">
-          <div class="ex-dir you">YOUR STRENGTH</div>
-          <div class="ex-text">${esc(youHave)}</div>
+
+        <form id="matchForm" class="matchForm">
+          <label>
+            What do you need right now?
+            <textarea name="need" required>I need 2-3 professional matches: one product mentor who can critique the demo, one community growth person, and one technical builder who can sanity-check the Qdrant/OpenAI architecture.</textarea>
+          </label>
+          <div class="actions">
+            <button type="submit">Generate Matches</button>
+          </div>
+        </form>
+
+        <div class="resultBlock" id="matchResult" hidden></div>
+      </section>
+
+      <section class="panel" id="chatPanel">
+        <div class="sectionHeader">
+          <h2>Conversation Management</h2>
+          <p>Create a lightweight two-person conversation and exchange messages after a match.</p>
         </div>
-      </div>
-      <div class="why-box">
-        <div class="why-text">💡 ${esc(m.why_now)}</div>
-      </div>
-      ${evidenceExtra.length ? `<div class="evidence-list">${evidenceExtra.map(e=>`<div class="evidence-item">• ${esc(e)}</div>`).join('')}</div>` : ''}
-    </div>
 
-    ${prompts.length ? `
-    <div class="card-section">
-      <div class="section-lbl">Start the conversation with</div>
-      <div class="prompt-list">
-        ${prompts.map(p=>`
-        <div class="prompt-item">
-          <span class="prompt-ico">${p.em}</span>
-          <span class="prompt-txt">${esc(p.txt)}</span>
-        </div>`).join('')}
-      </div>
-    </div>` : ''}
+        <form id="conversationForm" class="formGrid">
+          <label>
+            My ID
+            <input name="my_id" required />
+          </label>
+          <label>
+            My Name
+            <input name="my_name" required />
+          </label>
+          <label>
+            Other User ID
+            <input name="other_id" required value="sample_zara_ai_pm" />
+          </label>
+          <label>
+            Other User Name
+            <input name="other_name" required value="Zara Zhang" />
+          </label>
+          <label>
+            Conversation Title
+            <input name="title" value="Coffee Ninja follow-up" />
+          </label>
+          <div class="actions">
+            <button type="button" id="refreshConversationsButton">Refresh</button>
+            <button type="submit">Open Conversation</button>
+          </div>
+        </form>
 
-    ${m.suggested_activity ? `
-    <div class="card-section" style="border-bottom:none">
-      <div class="section-lbl">Suggested activity</div>
-      <span class="activity-tag">☕ ${esc(m.suggested_activity)}</span>
-    </div>` : ''}
+        <div class="chatLayout">
+          <aside class="conversationList" id="conversationList"></aside>
+          <section class="threadPanel">
+            <div class="threadHeader" id="threadHeader">No conversation selected</div>
+            <div class="messageList" id="messageList"></div>
+            <form id="messageForm" class="messageForm">
+              <textarea name="body" required placeholder="Write a short professional follow-up..."></textarea>
+              <button type="submit">Send</button>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
 
-    <div class="card-action">${actionHtml}</div>
-  </div>`;
-}
-
-/* ════ EVENT WIRING ════ */
-function wire() {
-  on('[data-a="start"]',    () => { S.screen='onboarding'; S.step=0; render(); });
-  on('[data-a="next"]',     () => { S.step++; render(); });
-  on('[data-a="back"]',     () => { S.step>0 ? S.step-- : (S.screen='welcome'); render(); });
-  on('[data-a="go-match"]', startMatching);
-
-  qsa('[data-field]').forEach(el => {
-    el.addEventListener('input', e => {
-      S.form[e.target.dataset.field] = e.target.value;
-      const btn = q('[data-a="next"]');
-      if (btn && S.step===0) btn.disabled = !(S.form.name.trim() || S.form.role.trim());
-    });
-  });
-
-  qsa('[data-rq]').forEach(el => {
-    el.addEventListener('click', () => {
-      const id = el.dataset.rq;
-      S.form.roleQuick = S.form.roleQuick===id ? '' : id;
-      if (!S.form.role) {
-        const map = { consultant:'Strategy Consultant', pm:'Product Manager', engineer:'Software Engineer', founder:'Founder' };
-        S.form.role = map[id] || '';
-      }
-      render();
-    });
-  });
-
-  qsa('[data-tn]').forEach(el => { el.addEventListener('click', () => toggle(S.form.needs, el.dataset.tn, 3)); });
-  qsa('[data-to]').forEach(el => { el.addEventListener('click', () => toggle(S.form.offers, el.dataset.to, 3)); });
-  qsa('[data-exp]').forEach(el => { el.addEventListener('click', () => { S.form.exp = el.dataset.exp; render(); }); });
-
-  qsa('[data-a="interested"]').forEach(el => {
-    el.addEventListener('click', () => {
-      const mid = el.dataset.mid;
-      S.interested[mid] = true;
-      const match = S.apiMatches.find(m=>m.candidate_id===mid);
-      const needLbls  = S.form.needs.map(id => NEEDS.find(o=>o.id===id)?.label).filter(Boolean);
-      const offerLbls = S.form.offers.map(id => OFFERS.find(o=>o.id===id)?.label).filter(Boolean);
-      const old = document.getElementById(`card-${mid}`);
-      if (old && match) {
-        const tmp = document.createElement('div');
-        tmp.innerHTML = card(match, needLbls, offerLbls);
-        old.replaceWith(tmp.firstElementChild);
-      }
-    });
-  });
-}
-
-/* ════ API + MATCHING FLOW ════ */
-async function startMatching() {
-  S.screen = 'matching';
-  S.error = null;
-  render();
-
-  const stepIds = ['ms1','ms2','ms3','ms4'];
-  let stepIdx = 0;
-
-  function advanceStep() {
-    const cur = document.getElementById(stepIds[stepIdx]);
-    if (cur) { cur.classList.remove('active'); cur.classList.add('done'); cur.textContent = '✓ ' + cur.textContent; }
-    stepIdx++;
-    if (stepIdx < stepIds.length) {
-      const nxt = document.getElementById(stepIds[stepIdx]);
-      if (nxt) nxt.classList.add('active');
-    }
-  }
-
-  const timer = setInterval(advanceStep, 1200);
-
-  try {
-    const needsText  = S.form.needs.map(id => NEEDS.find(o=>o.id===id)?.label).filter(Boolean).join(', ');
-    const offersText = S.form.offers.map(id => OFFERS.find(o=>o.id===id)?.label).filter(Boolean).join(', ');
-    const expNote    = S.form.exp ? `${S.form.exp} years experience.` : '';
-    const proudNote  = S.form.proud ? ` ${S.form.proud}` : '';
-
-    const onboardPayload = {
-      name:             S.form.name || 'Anonymous',
-      headline:         S.form.role || 'Community member',
-      location:         '',
-      availability:     '',
-      interests:        needsText,
-      expertise:        [offersText, expNote, proudNote].filter(Boolean).join(' '),
-      goals:            needsText,
-      current_need:     needsText,
-      preferred_formats:'coffee, conversation',
-      constraints:      'professional context only',
-    };
-
-    const profileRes = await fetch('/api/onboarding', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(onboardPayload),
-    });
-    if (!profileRes.ok) {
-      const err = await profileRes.json().catch(() => ({}));
-      throw new Error(err.detail || 'Profile generation failed');
-    }
-    const profileData = await profileRes.json();
-    S.apiProfile = profileData.profile;
-
-    advanceStep();
-
-    const matchRes = await fetch('/api/matches', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profile: S.apiProfile, need: needsText }),
-    });
-    if (!matchRes.ok) {
-      const err = await matchRes.json().catch(() => ({}));
-      throw new Error(err.detail || 'Match generation failed');
-    }
-    const matchData = await matchRes.json();
-    S.apiMatches   = matchData.matches || [];
-    S.usedLlm      = matchData.used_llm || false;
-    S.querySummary  = matchData.query_summary || '';
-
-    clearInterval(timer);
-    while (stepIdx < stepIds.length) advanceStep();
-
-    setTimeout(() => { S.screen = 'matches'; render(); }, 600);
-
-  } catch (err) {
-    clearInterval(timer);
-    S.error = err.message;
-    render();
-  }
-}
-
-/* ════ HELPERS ════ */
-const q   = s => document.querySelector(s);
-const qsa = s => document.querySelectorAll(s);
-const on  = (sel, fn) => { const el = q(sel); if(el) el.addEventListener('click', fn); };
-
-function toggle(arr, id, max) {
-  const i = arr.indexOf(id);
-  i>=0 ? arr.splice(i,1) : (arr.length<max && arr.push(id));
-  render();
-}
-
-function esc(str) {
-  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function nameColor(name) {
-  const palette = ['#C27046','#3A6FA8','#4A9C6E','#8B5CF6','#E06B39','#2D7D9A','#A85E6A','#5A8A3C','#7B5EA7'];
-  let h = 0;
-  for (const c of (name||'')) h = (h * 31 + c.charCodeAt(0)) & 0x7FFFFFFF;
-  return palette[h % palette.length];
-}
-
-render();
-</script>
-</body>
+    <script src="/static/app.js"></script>
+  </body>
 </html>
