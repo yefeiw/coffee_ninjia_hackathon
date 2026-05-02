@@ -42,4 +42,9 @@ def index() -> FileResponse:
     return FileResponse(FRONTEND_DIR / "index.html")
 
 
+@app.get("/admin")
+def admin() -> FileResponse:
+    return FileResponse(FRONTEND_DIR / "admin.html")
+
+
 app.include_router(coffee_router)

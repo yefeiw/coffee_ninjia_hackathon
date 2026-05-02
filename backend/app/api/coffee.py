@@ -55,6 +55,11 @@ def seed_profiles() -> dict:
     return {"status": "ok"}
 
 
+@router.get("/admin/profiles")
+def list_all_profiles() -> list[dict]:
+    return profile_service.vector_store.list_all()
+
+
 @router.get("/conversations", response_model=list[ConversationSummary])
 def list_conversations(participant_id: str | None = Query(default=None)) -> list[ConversationSummary]:
     return chat_service.list_conversations(participant_id=participant_id)

@@ -3,7 +3,10 @@ from __future__ import annotations
 import json
 import logging
 import uuid
+from pathlib import Path
+from threading import RLock
 
+from app.core.config import settings
 from app.data.sample_profiles import SAMPLE_PROFILES
 from app.schemas.profile import MemberProfile, ProfileIntake
 from app.services.openai_service import OpenAIService
@@ -18,6 +21,8 @@ class ProfileService:
     def __init__(self) -> None:
         self.openai = OpenAIService()
         self.vector_store = VectorStore()
+        self._store_path = Path(settings.profile_store_path)
+        self._store_lock = RLock()
 
     def seed_profiles(self) -> None:
         logger.info("profile.seed.start count=%s", len(SAMPLE_PROFILES))
@@ -25,6 +30,16 @@ class ProfileService:
             profile = self._hydrate_seed_profile(raw_profile)
             self.index_profile(profile)
         logger.info("profile.seed.done count=%s", len(SAMPLE_PROFILES))
+
+        persisted = self._load_persisted()
+        if persisted:
+            logger.info("profile.persisted.restore count=%s", len(persisted))
+            for data in persisted:
+                try:
+                    profile = MemberProfile(**data)
+                    self.index_profile(profile)
+                except Exception:
+                    logger.exception("profile.persisted.restore.failed id=%s", data.get("id"))
 
     def create_profile(self, intake: ProfileIntake) -> tuple[MemberProfile, bool]:
         used_llm = False
@@ -41,8 +56,26 @@ class ProfileService:
             logger.info("profile.create.local.start name=%s reason=no_openai_key", intake.name)
             profile = self._create_profile_locally(intake)
 
+        self._save_profile(profile)
         self.index_profile(profile)
         return profile, used_llm
+
+    def _load_persisted(self) -> list[dict]:
+        with self._store_lock:
+            if not self._store_path.exists():
+                return []
+            with self._store_path.open("r", encoding="utf-8") as f:
+                return json.load(f)
+
+    def _save_profile(self, profile: MemberProfile) -> None:
+        with self._store_lock:
+            profiles = self._load_persisted()
+            profiles = [p for p in profiles if p.get("id") != profile.id]
+            profiles.append(profile.model_dump())
+            self._store_path.parent.mkdir(parents=True, exist_ok=True)
+            with self._store_path.open("w", encoding="utf-8") as f:
+                json.dump(profiles, f, ensure_ascii=False, indent=2)
+            logger.info("profile.persisted.save profile_id=%s total=%s", profile.id, len(profiles))
 
     def index_profile(self, profile: MemberProfile) -> None:
         logger.info(
