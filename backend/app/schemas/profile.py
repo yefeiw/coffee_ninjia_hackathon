@@ -1,4 +1,13 @@
+from enum import Enum
+from typing import Optional
+
 from pydantic import BaseModel, Field
+
+
+class ConversationStyle(str, Enum):
+    tactical = "tactical"
+    strategic = "strategic"
+    casual = "casual"
 
 
 class ProfileIntake(BaseModel):
@@ -12,6 +21,10 @@ class ProfileIntake(BaseModel):
     current_need: str = ""
     preferred_formats: str = ""
     constraints: str = ""
+    company: str = ""
+    level: str = ""
+    years_experience: Optional[int] = None
+    conversation_style: Optional[ConversationStyle] = None
 
 
 class MemberProfile(BaseModel):
@@ -29,6 +42,10 @@ class MemberProfile(BaseModel):
     profile_summary: str
     search_text: str
     source: str = "user"
+    company: str = ""
+    level: str = ""
+    years_experience: Optional[int] = None
+    conversation_style: Optional[ConversationStyle] = None
 
 
 class ProfileResponse(BaseModel):
