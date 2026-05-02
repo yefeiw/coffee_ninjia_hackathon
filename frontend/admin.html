@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coffee Ninja — Admin</title>
+  <style>
+    :root {
+      --bg:          #f7f8fa;
+      --surface:     #ffffff;
+      --ink:         #1f2933;
+      --muted:       #627080;
+      --line:        #d9e0e7;
+      --accent:      #5C3317;
+      --accent-soft: #FEF0E2;
+      --accent-border:#EDD5B8;
+      --green:       #1F6E3F;
+      --green-bg:    #EBF5EE;
+      --green-border:#A8D5B8;
+      --blue:        #1D4ED8;
+      --blue-bg:     #EEF4FF;
+      --blue-border: #BFDBFE;
+      --orange:      #BF4D00;
+      --orange-bg:   #FFF3E0;
+      --orange-border:#FFD09E;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── LAYOUT ── */
+    .shell {
+      width: min(1200px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 64px;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-logo { font-size: 22px; }
+    .topbar-title { font-size: 20px; font-weight: 800; color: var(--ink); letter-spacing: -.4px; }
+    .topbar-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+    .btn-refresh {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 13px; font-weight: 600; color: var(--ink);
+      cursor: pointer; transition: all .15s;
+    }
+    .btn-refresh:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .btn-refresh.spinning .spin-icon { animation: spin .7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-dot {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; color: var(--muted);
+      padding: 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+    .dot.green { background: #22c55e; }
+    .dot.red   { background: #ef4444; }
+
+    /* ── NAV TABS ── */
+    .nav-tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-tab {
+      padding: 9px 18px;
+      font-size: 13px; font-weight: 600;
+      color: var(--muted);
+      background: none; border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      cursor: pointer; transition: all .15s;
+    }
+    .nav-tab:hover { color: var(--ink); }
+    .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ── STATS ROW ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+    .stat-value {
+      font-size: 26px; font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -.5px;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 11px; color: var(--muted);
+      margin-top: 5px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: .4px;
+    }
+    .stat-card.highlight { background: var(--accent-soft); border-color: var(--accent-border); }
+    .stat-card.highlight .stat-value { color: var(--accent); }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
+    .search-wrap input {
+      width: 100%;
+      padding: 9px 13px 9px 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      font: inherit; font-size: 13px;
+      color: var(--ink);
+      outline: none; transition: border-color .15s;
+    }
+    .search-wrap input:focus { border-color: #9B7B66; }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-icon {
+      position: absolute; left: 11px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px; color: var(--muted);
+      pointer-events: none;
+    }
+
+    .filter-select {
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      font: inherit; font-size: 13px;
+      color: var(--ink);
+      cursor: pointer; outline: none;
+    }
+
+    .result-count { font-size: 13px; color: var(--muted); margin-left: auto; }
+
+    /* ── PANEL (tab content) ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── PROFILE GRID ── */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 14px;
+    }
+
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px;
+      transition: box-shadow .15s;
+    }
+    .profile-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
+
+    .pc-head { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+    .pc-av {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: white;
+      flex-shrink: 0;
+    }
+    .pc-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .pc-headline { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .pc-source {
+      margin-left: auto; flex-shrink: 0;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+      padding: 3px 8px; border-radius: 100px;
+    }
+    .source-seed  { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+    .source-user  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+
+    .pc-field { margin-bottom: 10px; }
+    .pc-field:last-child { margin-bottom: 0; }
+    .pc-field-label {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .6px;
+      color: var(--muted); margin-bottom: 4px;
+    }
+    .pc-field-value { font-size: 13px; color: var(--ink); line-height: 1.45; }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 4px; }
+    .pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border: 1px solid var(--line);
+      border-radius: 100px;
+      font-size: 11px; color: var(--muted);
+      background: var(--bg);
+    }
+    .pill.interest { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+
+    .pc-need {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent-border);
+      font-size: 12px; color: var(--muted); line-height: 1.5;
+    }
+    .pc-need strong { color: var(--ink); font-weight: 600; }
+
+    /* ── EMPTY / LOADING ── */
+    .empty {
+      text-align: center; padding: 48px 24px;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 32px; margin-bottom: 12px; }
+    .empty-msg  { font-size: 14px; }
+
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 14px;
+    }
+    .skeleton-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px;
+      height: 220px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+    /* ── MATCHES PANEL ── */
+    .match-table-wrap { overflow-x: auto; }
+    .match-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .match-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      background: var(--bg);
+      white-space: nowrap;
+    }
+    .match-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    .match-table tr:last-child td { border-bottom: none; }
+    .match-table tr:hover td { background: var(--bg); }
+    .score-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .score-bar {
+      flex: 1; height: 6px;
+      background: var(--line);
+      border-radius: 3px; overflow: hidden;
+    }
+    .score-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+    .score-pct { font-size: 12px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+    .match-type-badge {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+      padding: 3px 8px; border-radius: 100px; white-space: nowrap;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .profile-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .topbar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-logo">☕</span>
+      <div>
+        <div class="topbar-title">Coffee Ninja — Admin</div>
+        <div class="topbar-sub">Community member profiles and match activity</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="status-dot" id="statusDot"><span class="dot" id="dot"></span><span id="statusText">Connecting…</span></div>
+      <button class="btn-refresh" id="refreshBtn" onclick="loadAll()">
+        <span class="spin-icon">↻</span> Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <div class="stats" id="statsRow">
+    <div class="skeleton-card" style="height:72px"></div>
+    <div class="skeleton-card" style="height:72px"></div>
+    <div class="skeleton-card" style="height:72px"></div>
+    <div class="skeleton-card" style="height:72px"></div>
+    <div class="skeleton-card" style="height:72px"></div>
+  </div>
+
+  <!-- TABS -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-tab="profiles">Members</button>
+    <button class="nav-tab" data-tab="matches">Recent Matches</button>
+  </nav>
+
+  <!-- PROFILES PANEL -->
+  <div class="panel active" id="panel-profiles">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search name, location, expertise, goals…">
+      </div>
+      <select class="filter-select" id="sourceFilter">
+        <option value="">All sources</option>
+        <option value="seed">Seed</option>
+        <option value="user">User</option>
+      </select>
+      <select class="filter-select" id="locationFilter">
+        <option value="">All locations</option>
+      </select>
+      <span class="result-count" id="resultCount"></span>
+    </div>
+    <div id="profileGrid">
+      <div class="skeleton-grid">
+        ${Array(6).fill('<div class="skeleton-card"></div>').join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- MATCHES PANEL -->
+  <div class="panel" id="panel-matches">
+    <div id="matchesContent">
+      <div class="empty"><div class="empty-icon">☕</div><div class="empty-msg">Loading match data…</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ════ STATE ════ */
+let ALL_PROFILES = [];
+let ALL_MATCHES  = [];
+
+/* ════ BOOT ════ */
+async function loadAll() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  await Promise.all([loadProfiles(), loadMatches()]);
+  btn.classList.remove('spinning');
+}
+
+async function loadProfiles() {
+  try {
+    const res = await fetch('/api/admin/profiles');
+    if (!res.ok) throw new Error(res.statusText);
+    ALL_PROFILES = await res.json();
+    setStatus(true);
+    renderStats(ALL_PROFILES);
+    populateLocationFilter(ALL_PROFILES);
+    applyFilters();
+  } catch (e) {
+    setStatus(false);
+    document.getElementById('profileGrid').innerHTML =
+      `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-msg">Could not load profiles: ${esc(e.message)}</div></div>`;
+  }
+}
+
+async function loadMatches() {
+  try {
+    const res = await fetch('/api/conversations');
+    if (!res.ok) throw new Error(res.statusText);
+    ALL_MATCHES = await res.json();
+    renderMatches(ALL_MATCHES);
+  } catch {
+    ALL_MATCHES = [];
+    renderMatches([]);
+  }
+}
+
+/* ════ STATS ════ */
+function renderStats(profiles) {
+  const bySource   = groupBy(profiles, p => p.source || 'unknown');
+  const byLocation = groupBy(profiles, p => p.location || '—');
+  const topLoc     = Object.entries(byLocation).sort((a,b) => b[1]-a[1])[0];
+  const interests  = profiles.flatMap(p => Array.isArray(p.interests) ? p.interests : []);
+  const topInterest = Object.entries(groupBy(interests, x=>x)).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card highlight">
+      <div class="stat-value">${profiles.length}</div>
+      <div class="stat-label">Total Members</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${bySource.seed || 0}</div>
+      <div class="stat-label">Seed Profiles</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${bySource.user || 0}</div>
+      <div class="stat-label">User Profiles</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${Object.keys(byLocation).length}</div>
+      <div class="stat-label">Locations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="font-size:15px;letter-spacing:0">${topLoc ? esc(topLoc[0]) : '—'}</div>
+      <div class="stat-label">Top Location</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="font-size:15px;letter-spacing:0">${topInterest ? esc(topInterest[0]) : '—'}</div>
+      <div class="stat-label">Top Interest</div>
+    </div>
+  `;
+}
+
+/* ════ FILTERS ════ */
+function populateLocationFilter(profiles) {
+  const locs = [...new Set(profiles.map(p => p.location).filter(Boolean))].sort();
+  const sel  = document.getElementById('locationFilter');
+  const cur  = sel.value;
+  sel.innerHTML = '<option value="">All locations</option>' +
+    locs.map(l => `<option value="${esc(l)}" ${l===cur?'selected':''}>${esc(l)}</option>`).join('');
+}
+
+function applyFilters() {
+  const q      = document.getElementById('searchInput').value.toLowerCase();
+  const source = document.getElementById('sourceFilter').value;
+  const loc    = document.getElementById('locationFilter').value;
+
+  const filtered = ALL_PROFILES.filter(p => {
+    if (source && (p.source || '') !== source) return false;
+    if (loc    && (p.location || '') !== loc)  return false;
+    if (q) {
+      const haystack = [
+        p.name, p.headline, p.location, p.current_need, p.profile_summary,
+        ...(p.expertise || []), ...(p.goals || []), ...(p.interests || []),
+      ].join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('resultCount').textContent =
+    filtered.length === ALL_PROFILES.length
+      ? `${ALL_PROFILES.length} members`
+      : `${filtered.length} of ${ALL_PROFILES.length}`;
+
+  renderProfileGrid(filtered);
+}
+
+/* ════ PROFILE GRID ════ */
+function renderProfileGrid(profiles) {
+  const grid = document.getElementById('profileGrid');
+  if (!profiles.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">☕</div><div class="empty-msg">No members match your filter.</div></div>`;
+    return;
+  }
+  grid.innerHTML = `<div class="profile-grid">${profiles.map(profileCard).join('')}</div>`;
+}
+
+function profileCard(p) {
+  const av     = (p.name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const avCol  = nameColor(p.name||'');
+  const src    = p.source === 'user' ? 'user' : 'seed';
+  const srcLbl = p.source === 'user' ? '👤 User' : '🌱 Seed';
+
+  const tags = (arr, cls='') =>
+    (arr||[]).map(t => `<span class="pill ${cls}">${esc(t)}</span>`).join('');
+
+  return `
+  <div class="profile-card">
+    <div class="pc-head">
+      <div class="pc-av" style="background:${avCol}">${av}</div>
+      <div style="flex:1;min-width:0">
+        <div class="pc-name">${esc(p.name||'Unknown')}</div>
+        <div class="pc-headline">${esc(p.headline||'')}</div>
+      </div>
+      <span class="pc-source source-${src}">${srcLbl}</span>
+    </div>
+
+    ${p.location ? `
+    <div class="pc-field">
+      <div class="pc-field-label">Location · Availability</div>
+      <div class="pc-field-value">📍 ${esc(p.location)}${p.availability ? ` · ${esc(p.availability)}` : ''}</div>
+    </div>` : ''}
+
+    ${(p.interests||[]).length ? `
+    <div class="pc-field">
+      <div class="pc-field-label">Interests</div>
+      <div class="pill-row">${tags(p.interests, 'interest')}</div>
+    </div>` : ''}
+
+    ${(p.expertise||[]).length ? `
+    <div class="pc-field">
+      <div class="pc-field-label">Expertise</div>
+      <div class="pill-row">${tags(p.expertise)}</div>
+    </div>` : ''}
+
+    ${(p.goals||[]).length ? `
+    <div class="pc-field">
+      <div class="pc-field-label">Goals</div>
+      <div class="pill-row">${tags(p.goals)}</div>
+    </div>` : ''}
+
+    ${p.current_need ? `
+    <div class="pc-need"><strong>Right now:</strong> ${esc(p.current_need)}</div>` : ''}
+  </div>`;
+}
+
+/* ════ MATCHES TABLE ════ */
+function renderMatches(conversations) {
+  const el = document.getElementById('matchesContent');
+  if (!conversations.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">☕</div><div class="empty-msg">No match conversations yet. Run a matching round first.</div></div>`;
+    return;
+  }
+
+  const rows = conversations.map(c => {
+    const pts = c.participants || [];
+    const names = pts.map(id => {
+      const p = ALL_PROFILES.find(x => x.id === id);
+      return p ? esc(p.name) : esc(id);
+    }).join(' ↔ ');
+    const msgCount = (c.messages || []).length;
+    const created  = c.created_at ? new Date(c.created_at).toLocaleDateString() : '—';
+    return `
+    <tr>
+      <td><strong>${names || '—'}</strong></td>
+      <td>${msgCount} message${msgCount!==1?'s':''}</td>
+      <td>${created}</td>
+      <td><span style="font-size:12px;color:var(--muted)">${esc(c.id||'')}</span></td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+  <div class="match-table-wrap">
+    <table class="match-table">
+      <thead><tr>
+        <th>Participants</th>
+        <th>Messages</th>
+        <th>Created</th>
+        <th>ID</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+/* ════ TABS ════ */
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
+  });
+});
+
+/* ════ LIVE SEARCH ════ */
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+document.getElementById('sourceFilter').addEventListener('change', applyFilters);
+document.getElementById('locationFilter').addEventListener('change', applyFilters);
+
+/* ════ STATUS ════ */
+function setStatus(ok) {
+  document.getElementById('dot').className      = `dot ${ok ? 'green' : 'red'}`;
+  document.getElementById('statusText').textContent = ok ? 'Backend connected' : 'Backend offline';
+}
+
+/* ════ HELPERS ════ */
+function esc(s) {
+  return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function groupBy(arr, fn) {
+  return arr.reduce((acc, x) => { const k = fn(x); acc[k] = (acc[k]||0)+1; return acc; }, {});
+}
+function nameColor(name) {
+  const palette = ['#C27046','#3A6FA8','#4A9C6E','#8B5CF6','#E06B39','#2D7D9A','#A85E6A','#5A8A3C'];
+  let h = 0; for (const c of name) h = (h*31+c.charCodeAt(0))&0x7FFFFFFF;
+  return palette[h % palette.length];
+}
+
+/* ════ INIT ════ */
+loadAll();
+</script>
+</body>
+</html>

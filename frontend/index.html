@@ -661,6 +661,44 @@
       border-radius: 100px;
     }
 
+    /* ── AUTH STEP ── */
+    .pw-wrap { position: relative; }
+    .pw-wrap .field-input { padding-right: 46px; }
+    .pw-toggle {
+      position: absolute; right: 13px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      font-size: 17px; cursor: pointer;
+      color: var(--text-muted);
+      line-height: 1;
+      padding: 4px;
+    }
+    .pw-toggle:hover { color: var(--coffee); }
+
+    .auth-error {
+      background: #FFF0EE;
+      border: 1px solid #FFCFC8;
+      border-radius: 10px;
+      padding: 10px 13px;
+      font-size: 13px;
+      color: #B03020;
+      margin-bottom: 14px;
+    }
+
+    .auth-mode-toggle {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .auth-mode-toggle button {
+      background: none; border: none;
+      color: var(--coffee);
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; text-decoration: underline;
+      padding: 0; margin-left: 4px;
+    }
+
     @media (max-width: 480px) {
       .exchange { grid-template-columns: 1fr; }
       .welcome-stats { gap: 20px; }
@@ -677,6 +715,7 @@
 const S = {
   screen: 'welcome',
   step: 0,
+  auth: { email: '', password: '', mode: 'signup', showPw: false, error: '' },
   form: {
     name: '', role: '', roleQuick: '',
     needs: [], offers: [],
@@ -747,11 +786,11 @@ function renderWelcome() {
 }
 
 /* ── ONBOARDING ── */
-const STEPS = 4;
+const STEPS = 5;
 
 function renderOnboarding() {
   const pct = ((S.step + 1) / STEPS) * 100;
-  const stepFns = [step0, step1, step2, step3];
+  const stepFns = [stepAuth, step0, step1, step2, step3];
   return `
   <div class="screen onboarding">
     <div class="ob-top">
@@ -760,6 +799,35 @@ function renderOnboarding() {
     </div>
     <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
     ${stepFns[S.step]()}
+  </div>`;
+}
+
+function stepAuth() {
+  const isLogin = S.auth.mode === 'login';
+  const canNext = S.auth.email.trim() && S.auth.password.length >= 6;
+  return `
+  <div class="step-pill">🔑 ${isLogin ? 'Log In' : 'Create Account'}</div>
+  <h2 class="step-title">${isLogin ? 'Welcome back.' : 'Let\'s get you set up.'}</h2>
+  <p class="step-sub">${isLogin ? 'Log in to see your matches and continue where you left off.' : 'Create a free account to find your first matches.'}</p>
+  ${S.auth.error ? `<div class="auth-error">${esc(S.auth.error)}</div>` : ''}
+  <div class="field-group">
+    <label class="field-label">Email</label>
+    <input class="field-input" type="email" placeholder="you@example.com" data-auth="email" value="${esc(S.auth.email)}" autocomplete="email">
+  </div>
+  <div class="field-group">
+    <label class="field-label">Password <span style="font-weight:400;text-transform:none;letter-spacing:0">(min 6 characters)</span></label>
+    <div class="pw-wrap">
+      <input class="field-input" type="${S.auth.showPw ? 'text' : 'password'}" placeholder="••••••••" data-auth="password" value="${esc(S.auth.password)}" autocomplete="${isLogin ? 'current-password' : 'new-password'}">
+      <button class="pw-toggle" data-a="toggle-pw" type="button">${S.auth.showPw ? '🙈' : '👁️'}</button>
+    </div>
+  </div>
+  <div class="step-nav">
+    <button class="btn-back" data-a="back">← Back</button>
+    <button class="btn-next" data-a="auth-next" ${canNext ? '' : 'disabled'}>${isLogin ? 'Log in' : 'Create account'} →</button>
+  </div>
+  <div class="auth-mode-toggle">
+    ${isLogin ? "Don't have an account?" : 'Already have an account?'}
+    <button data-a="toggle-mode">${isLogin ? 'Sign up' : 'Log in'}</button>
   </div>`;
 }
 
@@ -795,7 +863,7 @@ function step0() {
     </div>
   </div>
   <div class="step-nav">
-    <div></div>
+    <button class="btn-back" data-a="back">← Back</button>
     <button class="btn-next" data-a="next" ${canNext?'':'disabled'}>Continue →</button>
   </div>`;
 }
@@ -1017,11 +1085,61 @@ function wire() {
   on('[data-a="back"]',     () => { S.step>0 ? S.step-- : (S.screen='welcome'); render(); });
   on('[data-a="go-match"]', startMatching);
 
+  // Auth step
+  on('[data-a="auth-next"]', () => {
+    const email = S.auth.email.trim();
+    const pw    = S.auth.password;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      S.auth.error = 'Please enter a valid email address.'; render(); return;
+    }
+    if (pw.length < 6) {
+      S.auth.error = 'Password must be at least 6 characters.'; render(); return;
+    }
+    S.auth.error = '';
+
+    if (S.auth.mode === 'login') {
+      const saved = localStorage.getItem(`coffee_ninja_${email}`);
+      if (saved) {
+        const data = JSON.parse(saved);
+        S.form         = data.form;
+        S.apiProfile   = data.apiProfile;
+        S.apiMatches   = data.apiMatches   || [];
+        S.usedLlm      = data.usedLlm      || false;
+        S.querySummary = data.querySummary  || '';
+        S.screen = 'matches';
+        render();
+        return;
+      } else {
+        S.auth.error = 'No account found for this email. Please sign up first.';
+        render();
+        return;
+      }
+    }
+
+    // Signup: pre-fill name from email prefix if not already set
+    if (!S.form.name) {
+      const prefix = email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      S.form.name = prefix;
+    }
+    S.step++;
+    render();
+  });
+  on('[data-a="toggle-pw"]',   () => { S.auth.showPw = !S.auth.showPw; render(); });
+  on('[data-a="toggle-mode"]', () => { S.auth.mode = S.auth.mode==='signup' ? 'login' : 'signup'; S.auth.error = ''; render(); });
+
+  qsa('[data-auth]').forEach(el => {
+    el.addEventListener('input', e => {
+      S.auth[e.target.dataset.auth] = e.target.value;
+      const btn = q('[data-a="auth-next"]');
+      if (btn) btn.disabled = !(S.auth.email.trim() && S.auth.password.length >= 6);
+    });
+  });
+
   qsa('[data-field]').forEach(el => {
     el.addEventListener('input', e => {
       S.form[e.target.dataset.field] = e.target.value;
       const btn = q('[data-a="next"]');
-      if (btn && S.step===0) btn.disabled = !(S.form.name.trim() || S.form.role.trim());
+      if (btn && S.step===1) btn.disabled = !(S.form.name.trim() || S.form.role.trim());
     });
   });
 
@@ -1128,6 +1246,16 @@ async function startMatching() {
 
     clearInterval(timer);
     while (stepIdx < stepIds.length) advanceStep();
+
+    if (S.auth.email) {
+      localStorage.setItem(`coffee_ninja_${S.auth.email}`, JSON.stringify({
+        form:         S.form,
+        apiProfile:   S.apiProfile,
+        apiMatches:   S.apiMatches,
+        usedLlm:      S.usedLlm,
+        querySummary: S.querySummary,
+      }));
+    }
 
     setTimeout(() => { S.screen = 'matches'; render(); }, 600);
 
