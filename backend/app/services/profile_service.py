@@ -117,6 +117,8 @@ class ProfileService:
 You extract professional meetup profiles for Coffee Ninja.
 This is not dating and not recruiting. Optimize for useful professional conversations.
 Return only JSON that matches the schema. Use concise, specific tags.
+can_help_with and want_help_with must be concrete, tradable professional topics.
+Do not turn the profile into a LinkedIn bio; keep it matchable.
 """
         output = self.openai.generate_json(
             instructions=instructions.strip(),
@@ -137,6 +139,12 @@ Return only JSON that matches the schema. Use concise, specific tags.
             "headline": intake.headline,
             "location": intake.location,
             "availability": intake.availability,
+            "can_help_with": split_terms(intake.can_help_with),
+            "want_help_with": split_terms(intake.want_help_with),
+            "company": intake.company,
+            "level": intake.level,
+            "years": intake.years,
+            "conversation_style": intake.conversation_style,
             "interests": split_terms(intake.interests),
             "expertise": split_terms(intake.expertise),
             "goals": split_terms(intake.goals),
@@ -156,5 +164,6 @@ Return only JSON that matches the schema. Use concise, specific tags.
 
     def _local_summary(self, intake: ProfileIntake) -> str:
         headline = intake.headline or "Community member"
-        goal = intake.current_need or intake.goals or "looking for useful professional conversations"
-        return f"{headline}. Currently {goal}."
+        help_with = intake.can_help_with or intake.expertise or "useful professional context"
+        wants = intake.want_help_with or intake.current_need or "a high-signal professional conversation"
+        return f"{headline}. Can help with {help_with}. Wants help with {wants}."

@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -15,16 +14,19 @@ class ProfileIntake(BaseModel):
     headline: str = ""
     location: str = ""
     availability: str = ""
+    can_help_with: str = ""
+    want_help_with: str = ""
+    company: str = ""
+    level: str = ""
+    years: str = ""
+    years_experience: int | None = None
+    conversation_style: ConversationStyle | None = None
     interests: str = ""
     expertise: str = ""
     goals: str = ""
     current_need: str = ""
     preferred_formats: str = ""
     constraints: str = ""
-    company: str = ""
-    level: str = ""
-    years_experience: Optional[int] = None
-    conversation_style: Optional[ConversationStyle] = None
 
 
 class MemberProfile(BaseModel):
@@ -33,6 +35,13 @@ class MemberProfile(BaseModel):
     headline: str
     location: str
     availability: str
+    can_help_with: list[str] = Field(default_factory=list)
+    want_help_with: list[str] = Field(default_factory=list)
+    company: str = ""
+    level: str = ""
+    years: str = ""
+    years_experience: int | None = None
+    conversation_style: ConversationStyle | None = None
     interests: list[str]
     expertise: list[str]
     goals: list[str]
@@ -42,10 +51,6 @@ class MemberProfile(BaseModel):
     profile_summary: str
     search_text: str
     source: str = "user"
-    company: str = ""
-    level: str = ""
-    years_experience: Optional[int] = None
-    conversation_style: Optional[ConversationStyle] = None
 
 
 class ProfileResponse(BaseModel):

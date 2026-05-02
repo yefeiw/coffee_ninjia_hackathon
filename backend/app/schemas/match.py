@@ -14,7 +14,12 @@ class CandidateMatch(BaseModel):
     candidate_headline: str
     score: float
     match_type: str
+    you_want: str = ""
+    they_did: str = ""
+    they_want: str = ""
+    you_have: str = ""
     why_now: str
+    why_this_matters: str = ""
     evidence: list[str]
     suggested_activity: str
     conversation_starters: list[str]
