@@ -32,6 +32,24 @@ Coffee Ninja should act like a lightweight community concierge:
 4. Generate a warm intro and suggested activity.
 5. Collect feedback to improve the next matching round.
 
+## Product Boundary
+
+Coffee Ninja is a professional meetup tool, not a dating app and not a job board.
+
+Commonality:
+
+- All three need profiles, preferences, matching, trust, consent, and feedback.
+- All three reduce search costs by deciding who should meet whom.
+- All three need to explain why a match is worth attention.
+
+Differences:
+
+- Professional meetup: the unit of value is a useful conversation, follow-up, or collaboration path.
+- Dating app: the unit of value is mutual attraction, personal chemistry, and relationship intent.
+- Job-seeking app: the unit of value is a hiring funnel event, such as referral, interview, or offer.
+
+Coffee Ninja should optimize for professional intent fit, not attraction and not conversion to employment. A good match can be peer learning, a founder jam, advice, accountability, community onboarding, or a future collaboration. It does not need to become a date, an interview, or a transaction.
+
 ## MVP
 
 The hackathon MVP can be built as a single web app:
@@ -43,6 +61,20 @@ The hackathon MVP can be built as a single web app:
 - Activity generator: suggest coffee, coworking, dinner, walk, founder jam, mock interview, or project pairing.
 - Organizer dashboard: show proposed matches, confidence, rationale, and one-click export.
 - Feedback loop: mark whether people met, whether it was useful, and what should be different next time.
+
+## Definition of Done
+
+The MVP is done when we can demonstrate one complete professional meetup cycle:
+
+1. A member states a current professional intent in natural language.
+2. Coffee Ninja extracts structured matching signals from that statement.
+3. The system ranks at least five candidate matches or small groups.
+4. Each recommendation includes a concrete reason, not generic overlap.
+5. The organizer can approve, reject, or edit a match.
+6. The system generates a warm intro and one suggested activity.
+7. A lightweight feedback step records whether the match was useful.
+
+If the demo only shows a list of people with shared tags, it is not done. The product must show how intent becomes a specific professional meeting with an explainable next step.
 
 ## Demo Flow
 
@@ -82,6 +114,20 @@ builder-focused conversations and are available Saturday afternoon. Suggested
 activity: 30-minute coffee after demos, focused on turning the hackathon
 prototype into a repeatable community workflow.
 ```
+
+## Why Use an LLM
+
+Without an LLM, Coffee Ninja becomes a tag-matching form. That is useful, but it misses the hardest part of professional meetup matching: people describe intent messily.
+
+The LLM should be used for:
+
+- Intent extraction: turn "I am stuck on GTM for my AI side project" into goals, stage, domain, and needed help.
+- Profile normalization: map different wording into comparable signals without forcing every member into rigid dropdowns.
+- Match explanation: produce a clear reason that helps both people say yes.
+- Conversation design: generate agenda prompts that make the first 10 minutes productive.
+- Feedback digestion: convert short post-meeting notes into better future matching constraints.
+
+The LLM should not be used as a black-box decider. The ranking should still expose structured signals, scores, and organizer controls. The LLM adds judgment, language understanding, and explanation; the product still needs deterministic constraints for availability, repeats, blocks, and consent.
 
 ## Data Model
 
@@ -159,12 +205,32 @@ For a fast hackathon prototype:
 
 ## Success Metrics
 
-- Match acceptance rate
-- Meeting completion rate
-- Post-meeting usefulness rating
-- Number of second-order intros created
-- Repeat participation in future rounds
-- Organizer time saved per matching cycle
+For a professional meetup, success is not "number of matches." A match only counts if it creates a useful professional interaction.
+
+Primary success metric:
+
+- Useful meeting rate: percent of approved matches where both sides say the conversation was worth their time.
+
+Supporting metrics:
+
+- Acceptance rate: percent of proposed matches accepted by both sides.
+- Completion rate: percent of accepted matches that actually happen.
+- Intent-fit rating: post-meeting score for whether the match addressed the stated professional goal.
+- Follow-up rate: percent of meetings that create a next action, such as another call, intro, collaboration, resource share, or event invite.
+- Newcomer activation: percent of new community members who complete at least one useful meeting.
+- Cross-cluster bridges: number of matches between people who would not normally meet through existing friend groups.
+- Organizer time saved: time needed to produce one matching round compared with manual pairing.
+- Repeat participation: percent of members who opt into the next round after trying one match.
+
+Anti-metrics:
+
+- Matches generated but not accepted.
+- Vague "you both like AI" rationales.
+- Meetings that feel like unsolicited recruiting.
+- Meetings that feel socially ambiguous or dating-like.
+- High quantity with low follow-up.
+
+Our current plan partially reflects this definition of done: it includes intake, matching, rationale, activity suggestions, and feedback. The weak point is that it needs to make professional outcome quality visible in the demo. The demo should show not just who matched, but why the match serves a stated goal and how feedback would improve the next round.
 
 ## One-Sentence Pitch
 
