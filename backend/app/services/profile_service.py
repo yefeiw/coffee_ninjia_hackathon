@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 
 from app.data.sample_profiles import SAMPLE_PROFILES
@@ -10,37 +11,58 @@ from app.services.text_utils import extract_json_object, local_embedding, profil
 from app.services.vector_store import VectorStore
 
 
+logger = logging.getLogger(__name__)
+
+
 class ProfileService:
     def __init__(self) -> None:
         self.openai = OpenAIService()
         self.vector_store = VectorStore()
 
     def seed_profiles(self) -> None:
+        logger.info("profile.seed.start count=%s", len(SAMPLE_PROFILES))
         for raw_profile in SAMPLE_PROFILES:
             profile = self._hydrate_seed_profile(raw_profile)
             self.index_profile(profile)
+        logger.info("profile.seed.done count=%s", len(SAMPLE_PROFILES))
 
     def create_profile(self, intake: ProfileIntake) -> tuple[MemberProfile, bool]:
         used_llm = False
         if self.openai.enabled:
             try:
+                logger.info("profile.create.llm.start name=%s", intake.name)
                 profile = self._create_profile_with_llm(intake)
                 used_llm = True
+                logger.info("profile.create.llm.done profile_id=%s", profile.id)
             except Exception:
+                logger.exception("profile.create.llm.failed name=%s fallback=local", intake.name)
                 profile = self._create_profile_locally(intake)
         else:
+            logger.info("profile.create.local.start name=%s reason=no_openai_key", intake.name)
             profile = self._create_profile_locally(intake)
 
         self.index_profile(profile)
         return profile, used_llm
 
     def index_profile(self, profile: MemberProfile) -> None:
+        logger.info(
+            "profile.index.start profile_id=%s source=%s search_text_chars=%s",
+            profile.id,
+            profile.source,
+            len(profile.search_text),
+        )
         vector = self._embed_text(profile.search_text)
+        logger.info(
+            "profile.index.embedding.done profile_id=%s vector_size=%s",
+            profile.id,
+            len(vector),
+        )
         self.vector_store.upsert_profile(
             profile_id=profile.id,
             vector=vector,
             payload=profile.model_dump(),
         )
+        logger.info("profile.index.done profile_id=%s", profile.id)
 
     def embed_query(self, text: str) -> list[float]:
         return self._embed_text(text)
@@ -48,9 +70,12 @@ class ProfileService:
     def _embed_text(self, text: str) -> list[float]:
         if self.openai.enabled:
             try:
+                logger.info("embedding.openai.start text_chars=%s", len(text))
                 return self.openai.embed_text(text)
             except Exception:
+                logger.exception("embedding.openai.failed fallback=local text_chars=%s", len(text))
                 return local_embedding(text)
+        logger.info("embedding.local.start text_chars=%s reason=no_openai_key", len(text))
         return local_embedding(text)
 
     def _create_profile_with_llm(self, intake: ProfileIntake) -> MemberProfile:
