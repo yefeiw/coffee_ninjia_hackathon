@@ -19,6 +19,7 @@
       <nav class="tabs" aria-label="Coffee Ninja flows">
         <button class="tab active" data-panel="onboardingPanel">1. Onboarding</button>
         <button class="tab" data-panel="matchingPanel">2. Matching</button>
+        <button class="tab" data-panel="chatPanel">3. Chat</button>
       </nav>
 
       <section class="panel active" id="onboardingPanel">
@@ -93,6 +94,52 @@
         </form>
 
         <div class="resultBlock" id="matchResult" hidden></div>
+      </section>
+
+      <section class="panel" id="chatPanel">
+        <div class="sectionHeader">
+          <h2>Conversation Management</h2>
+          <p>Create a lightweight two-person conversation and exchange messages after a match.</p>
+        </div>
+
+        <form id="conversationForm" class="formGrid">
+          <label>
+            My ID
+            <input name="my_id" required />
+          </label>
+          <label>
+            My Name
+            <input name="my_name" required />
+          </label>
+          <label>
+            Other User ID
+            <input name="other_id" required value="sample_zara_ai_pm" />
+          </label>
+          <label>
+            Other User Name
+            <input name="other_name" required value="Zara Zhang" />
+          </label>
+          <label>
+            Conversation Title
+            <input name="title" value="Coffee Ninja follow-up" />
+          </label>
+          <div class="actions">
+            <button type="button" id="refreshConversationsButton">Refresh</button>
+            <button type="submit">Open Conversation</button>
+          </div>
+        </form>
+
+        <div class="chatLayout">
+          <aside class="conversationList" id="conversationList"></aside>
+          <section class="threadPanel">
+            <div class="threadHeader" id="threadHeader">No conversation selected</div>
+            <div class="messageList" id="messageList"></div>
+            <form id="messageForm" class="messageForm">
+              <textarea name="body" required placeholder="Write a short professional follow-up..."></textarea>
+              <button type="submit">Send</button>
+            </form>
+          </section>
+        </div>
       </section>
     </main>
 

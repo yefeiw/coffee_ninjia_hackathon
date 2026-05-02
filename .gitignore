@@ -4,3 +4,5 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 qdrant_data/
+logs/
+chat_data/
