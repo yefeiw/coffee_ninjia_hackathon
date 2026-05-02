@@ -141,6 +141,33 @@ label {
   font-weight: 600;
 }
 
+.chipField {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chipGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chipGroup button {
+  min-height: 34px;
+  padding: 7px 11px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.chipGroup button.selected {
+  border-color: var(--accent);
+  background: #e7f4f2;
+  color: var(--accent-dark);
+}
+
 input,
 textarea {
   width: 100%;
@@ -178,6 +205,38 @@ textarea {
   margin-bottom: 12px;
 }
 
+.valueGrid,
+.exchangeGrid {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.valueGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.exchangeGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.valueGrid div,
+.exchangeGrid div {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f7faf9;
+  padding: 10px;
+}
+
+.valueGrid strong,
+.exchangeGrid strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--accent-dark);
+  text-transform: uppercase;
+}
+
 .meta {
   display: flex;
   flex-wrap: wrap;
@@ -205,6 +264,17 @@ textarea {
 
 .matchCard button {
   margin-top: 12px;
+  margin-right: 8px;
+}
+
+.interestStatus {
+  border: 1px solid #9cc9c4;
+  border-radius: 8px;
+  background: #e7f4f2;
+  color: var(--accent-dark);
+  padding: 8px 10px;
+  margin-top: 10px;
+  font-weight: 650;
 }
 
 .matchCard h3 {
@@ -323,6 +393,8 @@ pre {
 
   .formGrid,
   .matchGrid,
+  .valueGrid,
+  .exchangeGrid,
   .chatLayout,
   .messageForm {
     grid-template-columns: 1fr;

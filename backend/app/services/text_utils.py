@@ -47,10 +47,22 @@ def profile_search_text(profile: dict[str, Any]) -> str:
         profile.get("headline", ""),
         profile.get("location", ""),
         profile.get("availability", ""),
+        profile.get("company", ""),
+        profile.get("level", ""),
+        profile.get("years", ""),
+        profile.get("conversation_style", ""),
         profile.get("current_need", ""),
         profile.get("profile_summary", ""),
     ]
-    for key in ("interests", "expertise", "goals", "preferred_formats", "constraints"):
+    for key in (
+        "can_help_with",
+        "want_help_with",
+        "interests",
+        "expertise",
+        "goals",
+        "preferred_formats",
+        "constraints",
+    ):
         value = profile.get(key, [])
         if isinstance(value, list):
             parts.append(", ".join(str(item) for item in value))

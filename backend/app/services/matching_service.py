@@ -54,7 +54,7 @@ class MatchingService:
         retrieved = [
             hit
             for hit in raw_hits
-            if hit["payload"].get("id") != profile.id
+            if not self._is_requester_duplicate(profile, hit["payload"])
         ]
         candidates = retrieved[:6]
         logger.info(
@@ -111,6 +111,14 @@ class MatchingService:
         )
         return hits
 
+    def _is_requester_duplicate(self, profile: MemberProfile, candidate_payload: dict) -> bool:
+        if candidate_payload.get("id") == profile.id:
+            return True
+        return self._normalize_name(candidate_payload.get("name", "")) == self._normalize_name(profile.name)
+
+    def _normalize_name(self, name: str) -> str:
+        return " ".join(name.lower().split())
+
     def _rank_with_llm(self, profile: MemberProfile, need: str, candidates: list[dict]) -> MatchResponse:
         logger.info(
             "matching.ranking.llm.start profile_id=%s candidates=%s candidate_ids=%s",
@@ -124,6 +132,13 @@ You are Coffee Ninja's professional meetup matching agent.
 Rank candidates for useful professional conversations, not dating and not recruiting.
 Return 2 or 3 matches. Every match must include evidence grounded in the candidate payload,
 a practical activity, risks, and a ready-to-send intro message.
+match_type must be one of: Give-first match, Mutual exchange, Peer match.
+For every match, fill these product demo fields:
+- you_want: what the requester wants help with
+- they_did: what the candidate has actually done that maps to that need
+- they_want: what the candidate wants help with
+- you_have: what the requester can offer back
+- why_this_matters: why this is worth a 30-minute professional conversation
 """
         payload = {
             "requester": profile.model_dump(),
@@ -155,6 +170,8 @@ a practical activity, risks, and a ready-to-send intro message.
             [candidate["payload"].get("id") for candidate in candidates],
         )
         requester_terms = {
+            *(item.lower() for item in profile.can_help_with),
+            *(item.lower() for item in profile.want_help_with),
             *(item.lower() for item in profile.interests),
             *(item.lower() for item in profile.expertise),
             *(item.lower() for item in profile.goals),
@@ -165,10 +182,17 @@ a practical activity, risks, and a ready-to-send intro message.
         for hit in candidates[:3]:
             candidate = hit["payload"]
             candidate_terms = {
+                *(item.lower() for item in candidate.get("can_help_with", [])),
+                *(item.lower() for item in candidate.get("want_help_with", [])),
                 *(item.lower() for item in candidate.get("interests", [])),
                 *(item.lower() for item in candidate.get("expertise", [])),
                 *(item.lower() for item in candidate.get("goals", [])),
             }
+            match_type = self._match_type(profile, candidate)
+            you_want = self._first(profile.want_help_with, need)
+            they_did = self._first(candidate.get("can_help_with", []), candidate.get("profile_summary", ""))
+            they_want = self._first(candidate.get("want_help_with", []), candidate.get("current_need", ""))
+            you_have = self._first(profile.can_help_with, profile.profile_summary)
             overlap = sorted(term for term in requester_terms.intersection(candidate_terms) if len(term) > 2)
             evidence = [
                 f"Vector retrieval score: {hit['score']:.2f}",
@@ -183,8 +207,13 @@ a practical activity, risks, and a ready-to-send intro message.
                     candidate_name=candidate.get("name", ""),
                     candidate_headline=candidate.get("headline", ""),
                     score=round(float(hit["score"]), 3),
-                    match_type="Professional intent fit",
+                    match_type=match_type,
+                    you_want=you_want,
+                    they_did=they_did,
+                    they_want=they_want,
+                    you_have=you_have,
                     why_now=f"{candidate.get('name')} appears relevant to: {need}",
+                    why_this_matters=self._why_this_matters(match_type, candidate),
                     evidence=evidence,
                     suggested_activity=self._activity(candidate),
                     conversation_starters=[
@@ -225,6 +254,32 @@ a practical activity, risks, and a ready-to-send intro message.
             payload["retrieval_score"] = round(float(candidate["score"]), 3)
             ranked_candidates.append(payload)
         return ranked_candidates
+
+    def _match_type(self, profile: MemberProfile, candidate: dict) -> str:
+        requester_can_help = bool(profile.can_help_with)
+        requester_wants = bool(profile.want_help_with or profile.current_need)
+        candidate_can_help = bool(candidate.get("can_help_with"))
+        candidate_wants = bool(candidate.get("want_help_with") or candidate.get("current_need"))
+
+        if requester_can_help and requester_wants and candidate_can_help and candidate_wants:
+            return "Mutual exchange"
+        if candidate_can_help and requester_wants:
+            return "Give-first match"
+        return "Peer match"
+
+    def _why_this_matters(self, match_type: str, candidate: dict) -> str:
+        if match_type == "Mutual exchange":
+            return "Both sides have a concrete ask and a concrete give, so the conversation can create value quickly."
+        if match_type == "Give-first match":
+            return f"{candidate.get('name')} has relevant experience for the request and can make the first conversation immediately useful."
+        return "Both people are close enough in context to compare notes, unblock each other, and keep the conversation low-friction."
+
+    def _first(self, values: list[str] | str, fallback: str) -> str:
+        if isinstance(values, list) and values:
+            return values[0]
+        if isinstance(values, str) and values:
+            return values
+        return fallback
 
     def _duration_ms(self, started_at: float) -> int:
         return round((time.perf_counter() - started_at) * 1000)
