@@ -220,6 +220,21 @@ Flow 2: describe a need and generate matches.
 5. LLM returns 2-3 ranked matches with grounded evidence, risks, suggested activity, conversation starters, and an intro message.
 6. Frontend displays match cards that explain why each person is relevant.
 
+The backend matching flow has six logged stages:
+
+1. `request`: receive the profile and current need.
+2. `index_requester`: upsert the current requester profile into Qdrant so the latest profile is searchable.
+3. `embed_query`: embed the requester's profile plus the current need.
+4. `retrieve_candidates`: search Qdrant and filter out the requester.
+5. `rank_candidates`: rank the retrieved candidates with the LLM, or local fallback if the LLM fails.
+6. `response`: return 2-3 evidence-backed matches to the frontend.
+
+Retrieval and ranking are intentionally separate:
+
+- Retrieval is Qdrant-first. It produces a candidate pool using vector similarity and logs raw hits, filtered hits, candidate IDs, top scores, and duration.
+- Ranking is LLM-first. It receives only the retrieved candidate pool and returns the final 2-3 matches with evidence, risks, suggested activity, and intro copy.
+- Local ranking is a fallback path, not the main product behavior.
+
 Match output:
 
 - `candidate_id`
