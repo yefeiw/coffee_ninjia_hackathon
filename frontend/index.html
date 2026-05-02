@@ -809,6 +809,19 @@
       padding: 0; margin-left: 4px;
     }
 
+    .btn-logout {
+      margin-left: auto;
+      padding: 7px 14px;
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 13px; font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .btn-logout:hover { border-color: var(--coffee); color: var(--coffee); }
+
     @media (max-width: 480px) {
       .exchange { grid-template-columns: 1fr; }
       .welcome-stats { gap: 20px; }
@@ -1112,7 +1125,7 @@ function renderMatches() {
 
   return `
   <div class="screen matches-wrap">
-    <div class="matches-logo">☕ Coffee Ninja</div>
+    <div class="matches-logo">☕ Coffee Ninja<button class="btn-logout" data-a="logout">Sign out</button></div>
     <div class="found-pill">✓ ${count} match${count!==1?'es':''} found for you</div>
     <h1 class="matches-title">We found people who make sense</h1>
     <p class="matches-sub">${esc(S.querySummary) || 'Each match is scored on genuine mutual value — not just who might be nice to know.'}</p>
@@ -1238,6 +1251,13 @@ function wire() {
   on('[data-a="next"]',     () => { S.step++; render(); });
   on('[data-a="back"]',     () => { S.step>0 ? S.step-- : (S.screen='welcome'); render(); });
   on('[data-a="go-match"]', startMatching);
+  on('[data-a="logout"]',   () => {
+    localStorage.removeItem('coffee_ninja_session');
+    S.auth = { email:'', password:'', mode:'signup', showPw:false, error:'' };
+    S.form = { name:'', role:'', roleQuick:'', needs:[], offers:[], exp:'', proud:'' };
+    S.interested = {}; S.apiMatches = []; S.apiProfile = null;
+    S.screen = 'welcome'; S.step = 0; render();
+  });
 
   // Auth step
   on('[data-a="auth-next"]', () => {
@@ -1260,6 +1280,8 @@ function wire() {
         S.apiMatches   = data.apiMatches   || [];
         S.usedLlm      = data.usedLlm      || false;
         S.querySummary = data.querySummary  || '';
+        S.interested   = data.interested   || {};
+        saveSession(email);
         S.screen = 'matches';
         render();
         return;
@@ -1275,6 +1297,7 @@ function wire() {
       const prefix = email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
       S.form.name = prefix;
     }
+    saveSession(email);
     S.step++;
     render();
   });
@@ -1416,6 +1439,7 @@ async function startMatching() {
         apiMatches:   S.apiMatches,
         usedLlm:      S.usedLlm,
         querySummary: S.querySummary,
+        interested:   S.interested,
       }));
     }
 
@@ -1570,7 +1594,36 @@ function nameColor(name) {
   return palette[h % palette.length];
 }
 
-render();
+function saveSession(email) {
+  S.auth.email = email;
+  localStorage.setItem('coffee_ninja_session', JSON.stringify({ email }));
+}
+
+(function boot() {
+  try {
+    const session = JSON.parse(localStorage.getItem('coffee_ninja_session') || 'null');
+    if (session?.email) {
+      S.auth.email = session.email;
+      const saved = localStorage.getItem(`coffee_ninja_${session.email}`);
+      if (saved) {
+        const data = JSON.parse(saved);
+        S.form         = data.form         || S.form;
+        S.apiProfile   = data.apiProfile   || null;
+        S.apiMatches   = data.apiMatches   || [];
+        S.usedLlm      = data.usedLlm      || false;
+        S.querySummary = data.querySummary || '';
+        S.interested   = data.interested   || {};
+        S.screen = 'matches';
+      } else {
+        S.step = 1;
+        S.screen = 'onboarding';
+      }
+    }
+  } catch (e) {
+    localStorage.removeItem('coffee_ninja_session');
+  }
+  render();
+})();
 </script>
 </body>
 </html>
