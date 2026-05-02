@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     qdrant_collection_name: str = "coffee_profiles"
     retrieval_top_k: int = 8
     chat_store_path: str = "./chat_data/conversations.json"
+    profile_store_path: str = "./profile_data/profiles.json"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
