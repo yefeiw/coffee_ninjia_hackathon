@@ -1,4 +1,12 @@
+from enum import Enum
+
 from pydantic import BaseModel, Field
+
+
+class ConversationStyle(str, Enum):
+    tactical = "tactical"
+    strategic = "strategic"
+    casual = "casual"
 
 
 class ProfileIntake(BaseModel):
@@ -11,7 +19,8 @@ class ProfileIntake(BaseModel):
     company: str = ""
     level: str = ""
     years: str = ""
-    conversation_style: str = ""
+    years_experience: int | None = None
+    conversation_style: ConversationStyle | None = None
     interests: str = ""
     expertise: str = ""
     goals: str = ""
@@ -31,7 +40,8 @@ class MemberProfile(BaseModel):
     company: str = ""
     level: str = ""
     years: str = ""
-    conversation_style: str = ""
+    years_experience: int | None = None
+    conversation_style: ConversationStyle | None = None
     interests: list[str]
     expertise: list[str]
     goals: list[str]
