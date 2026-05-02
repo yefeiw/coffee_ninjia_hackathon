@@ -7,11 +7,13 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.coffee import profile_service, router as coffee_router
 from app.core.config import settings
+from app.core.logging import configure_logging
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FRONTEND_DIR = REPO_ROOT / "frontend"
 
+configure_logging()
 app = FastAPI(title=settings.app_name)
 app.add_middleware(
     CORSMiddleware,
