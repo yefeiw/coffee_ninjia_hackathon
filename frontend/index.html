@@ -38,6 +38,18 @@
             <input name="headline" value="AI builder exploring community matching tools" />
           </label>
           <label>
+            Company
+            <input name="company" value="Coffee Ninja" />
+          </label>
+          <label>
+            Level
+            <input name="level" value="Builder" />
+          </label>
+          <label>
+            Years
+            <input name="years" value="8 years" />
+          </label>
+          <label>
             Location
             <input name="location" value="Mountain View / Palo Alto" />
           </label>
@@ -45,6 +57,35 @@
             Availability
             <input name="availability" value="Saturday afternoon, weekday coffee" />
           </label>
+          <div class="chipField">
+            <span>I can help with</span>
+            <div class="chipGroup" data-chip-target="can_help_with">
+              <button type="button" data-value="Python backend">Python backend</button>
+              <button type="button" data-value="LLM apps">LLM apps</button>
+              <button type="button" data-value="product prototyping">Product prototyping</button>
+              <button type="button" data-value="community tooling">Community tooling</button>
+            </div>
+            <input name="can_help_with" value="Python backend, LLM apps, product prototyping" />
+          </div>
+          <div class="chipField">
+            <span>I want help with</span>
+            <div class="chipGroup" data-chip-target="want_help_with">
+              <button type="button" data-value="demo storytelling">Demo storytelling</button>
+              <button type="button" data-value="community growth">Community growth</button>
+              <button type="button" data-value="Qdrant architecture">Qdrant architecture</button>
+              <button type="button" data-value="AI PM transition">AI PM transition</button>
+            </div>
+            <input name="want_help_with" value="demo storytelling, community growth, Qdrant architecture" />
+          </div>
+          <div class="chipField">
+            <span>Conversation style</span>
+            <div class="chipGroup single" data-chip-target="conversation_style">
+              <button type="button" data-value="tactical">Tactical</button>
+              <button type="button" data-value="strategic">Strategic</button>
+              <button type="button" data-value="casual">Casual</button>
+            </div>
+            <input name="conversation_style" value="tactical" />
+          </div>
           <label>
             Interests
             <textarea name="interests">AI agents, community tooling, professional networking, hackathon demos</textarea>
@@ -86,7 +127,7 @@
         <form id="matchForm" class="matchForm">
           <label>
             What do you need right now?
-            <textarea name="need" required>I need 2-3 professional matches: one person who can critique the product demo, one who understands community growth, and one technical builder who can sanity-check the Qdrant/OpenAI architecture.</textarea>
+            <textarea name="need" required>I need 2-3 professional matches: one product mentor who can critique the demo, one community growth person, and one technical builder who can sanity-check the Qdrant/OpenAI architecture.</textarea>
           </label>
           <div class="actions">
             <button type="submit">Generate Matches</button>
