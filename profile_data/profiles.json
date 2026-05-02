@@ -1,0 +1,95 @@
+[
+  {
+    "id": "user_15084d1c5a42",
+    "name": "A",
+    "headline": "Founder",
+    "location": "",
+    "availability": "",
+    "interests": [
+      "Executive / leadership track"
+    ],
+    "expertise": [
+      "Data analysis & storytelling"
+    ],
+    "goals": [
+      "Executive / leadership track"
+    ],
+    "current_need": "Executive / leadership track",
+    "preferred_formats": [
+      "coffee",
+      "conversation"
+    ],
+    "constraints": [
+      "professional context only"
+    ],
+    "profile_summary": "Founder. Currently Executive / leadership track.",
+    "search_text": "A\nFounder\nExecutive / leadership track\nFounder. Currently Executive / leadership track.\nExecutive / leadership track\nData analysis & storytelling\nExecutive / leadership track\ncoffee, conversation\nprofessional context only",
+    "source": "user",
+    "company": "",
+    "level": "",
+    "years_experience": null,
+    "conversation_style": null
+  },
+  {
+    "id": "user_c3c2c7cb34fc",
+    "name": "Demo User",
+    "headline": "Founder",
+    "location": "",
+    "availability": "",
+    "interests": [
+      "AI"
+    ],
+    "expertise": [
+      "GTM"
+    ],
+    "goals": [
+      "find co-founders"
+    ],
+    "current_need": "find co-founders",
+    "preferred_formats": [
+      "coffee"
+    ],
+    "constraints": [],
+    "profile_summary": "Founder. Currently find co-founders.",
+    "search_text": "Demo User\nFounder\nfind co-founders\nFounder. Currently find co-founders.\nAI\nGTM\nfind co-founders\ncoffee",
+    "source": "user",
+    "company": "",
+    "level": "",
+    "years_experience": null,
+    "conversation_style": null
+  },
+  {
+    "id": "user_f54b69621db6",
+    "name": "Daniel",
+    "headline": "Engineer",
+    "location": "",
+    "availability": "",
+    "can_help_with": [],
+    "want_help_with": [],
+    "company": "",
+    "level": "",
+    "years": "",
+    "years_experience": null,
+    "conversation_style": null,
+    "interests": [
+      "AI / ML product thinking"
+    ],
+    "expertise": [
+      "Structured problem solving 7–10 years experience."
+    ],
+    "goals": [
+      "AI / ML product thinking"
+    ],
+    "current_need": "AI / ML product thinking",
+    "preferred_formats": [
+      "coffee",
+      "conversation"
+    ],
+    "constraints": [
+      "professional context only"
+    ],
+    "profile_summary": "Engineer. Can help with Structured problem solving 7–10 years experience.. Wants help with AI / ML product thinking.",
+    "search_text": "Daniel\nEngineer\nAI / ML product thinking\nEngineer. Can help with Structured problem solving 7–10 years experience.. Wants help with AI / ML product thinking.\nAI / ML product thinking\nStructured problem solving 7–10 years experience.\nAI / ML product thinking\ncoffee, conversation\nprofessional context only",
+    "source": "user"
+  }
+]

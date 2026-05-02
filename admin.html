@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coffee Ninja — Admin Dashboard</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f8fa;
+        --surface: #ffffff;
+        --ink: #1f2933;
+        --muted: #627080;
+        --line: #d9e0e7;
+        --accent: #0f766e;
+        --accent-dark: #0b5d57;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .shell {
+        width: min(1180px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 18px;
+      }
+
+      h1 { font-size: 30px; line-height: 1.2; margin: 0; }
+      h2 { font-size: 20px; line-height: 1.3; margin: 0; }
+      h3 { font-size: 16px; margin: 0; }
+      p { margin: 0; font-size: 14px; line-height: 1.5; }
+      .topbar p { color: var(--muted); margin-top: 6px; }
+
+      .stats {
+        display: flex;
+        gap: 16px;
+        margin: 24px 0;
+        flex-wrap: wrap;
+      }
+
+      .stat-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        padding: 16px 20px;
+        min-width: 140px;
+      }
+
+      .stat-card .value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      .stat-card .label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      .filter-bar {
+        margin: 20px 0;
+      }
+
+      .filter-bar input {
+        width: 100%;
+        max-width: 400px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--ink);
+        font: inherit;
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 14px;
+      }
+
+      .profile-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        padding: 16px;
+      }
+
+      .profile-card h3 { margin-bottom: 4px; }
+
+      .profile-card .headline {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+
+      .profile-card .field {
+        margin-bottom: 8px;
+      }
+
+      .profile-card .field-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--muted);
+        letter-spacing: 0.5px;
+      }
+
+      .profile-card .field-value {
+        font-size: 13px;
+        margin-top: 2px;
+      }
+
+      .pill {
+        display: inline-block;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 11px;
+        color: var(--muted);
+        margin: 2px 2px 2px 0;
+      }
+
+      .no-results {
+        color: var(--muted);
+        font-style: italic;
+        padding: 20px 0;
+      }
+
+      @media (max-width: 860px) {
+        .profile-grid { grid-template-columns: 1fr; }
+        .stats { flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>Coffee Ninja — Admin Dashboard</h1>
+          <p>Overview of all community member profiles.</p>
+        </div>
+      </header>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="filter-bar">
+        <input type="text" id="filterInput" placeholder="Filter by name, location, expertise, goals..." />
+      </div>
+
+      <div class="profile-grid" id="profileGrid"></div>
+    </main>
+
+    <script>
+      const PROFILES = [
+        {
+          id: "sample_zara_ai_pm",
+          name: "Zara Zhang",
+          headline: "AI product builder, 0-to-1 project mentor",
+          location: "Palo Alto",
+          availability: "Saturday afternoon, weekday coffee near Stanford",
+          interests: ["AI products", "community tooling", "rapid prototyping"],
+          expertise: ["0-to-1 product", "demo storytelling", "user interviews"],
+          goals: ["help builders ship clearer AI demos", "meet early-stage founders"],
+          current_need: "Looking for teams that need product framing and demo polish.",
+          preferred_formats: ["coffee", "demo critique", "small-group jam"],
+          constraints: ["prefers focused 30-minute conversations"],
+          profile_summary: "AI product mentor who helps teams turn raw ideas into crisp demos.",
+          source: "seed",
+        },
+        {
+          id: "sample_maya_growth",
+          name: "Maya Chen",
+          headline: "Community growth operator for founder and AI events",
+          location: "San Francisco",
+          availability: "Evenings and weekend event follow-ups",
+          interests: ["community growth", "event funnels", "viral loops"],
+          expertise: ["Luma campaigns", "newsletter copy", "ambassador programs"],
+          goals: ["increase repeat event attendance", "find AI tooling collaborators"],
+          current_need: "Wants lightweight automations that turn events into repeat participation.",
+          preferred_formats: ["walk", "coffee", "working session"],
+          constraints: ["remote-friendly"],
+          profile_summary: "Growth operator focused on turning community events into durable loops.",
+          source: "seed",
+        },
+        {
+          id: "sample_alan_backend",
+          name: "Alan Liu",
+          headline: "Backend engineer working on vector search and RAG",
+          location: "Mountain View",
+          availability: "Weekday lunch, Saturday hack sessions",
+          interests: ["RAG", "Qdrant", "FastAPI", "LLM infra"],
+          expertise: ["Python backend", "vector databases", "OpenAI integrations"],
+          goals: ["meet product-minded builders", "ship applied AI prototypes"],
+          current_need: "Looking for concrete user problems where retrieval can help.",
+          preferred_formats: ["pair hacking", "technical deep dive", "coffee"],
+          constraints: ["prefers scoped technical topics"],
+          profile_summary: "Backend builder who can turn AI product ideas into working retrieval systems.",
+          source: "seed",
+        },
+        {
+          id: "sample_nina_design",
+          name: "Nina Patel",
+          headline: "UX designer for professional networking and onboarding flows",
+          location: "San Jose",
+          availability: "Sunday afternoon, weekday evenings",
+          interests: ["UX research", "trust and safety", "community onboarding"],
+          expertise: ["form design", "match explanation UX", "feedback loops"],
+          goals: ["make AI recommendations feel trustworthy", "meet technical co-builders"],
+          current_need: "Looking for engineers who need help making AI decisions explainable.",
+          preferred_formats: ["design review", "coffee", "whiteboard session"],
+          constraints: ["prefers in-person for first meetings"],
+          profile_summary: "Designer focused on trust-building UX for onboarding and recommendation flows.",
+          source: "seed",
+        },
+        {
+          id: "sample_eric_founder",
+          name: "Eric Wang",
+          headline: "B2B SaaS founder exploring AI community workflows",
+          location: "Sunnyvale",
+          availability: "Friday lunch, Saturday afternoon",
+          interests: ["B2B SaaS", "AI agents", "community operations"],
+          expertise: ["customer discovery", "enterprise GTM", "pricing"],
+          goals: ["validate AI workflow ideas", "find design partners"],
+          current_need: "Needs feedback on turning a hackathon prototype into a paid workflow.",
+          preferred_formats: ["founder jam", "coffee", "problem clinic"],
+          constraints: ["not looking for recruiting conversations"],
+          profile_summary: "Founder who can help connect prototype ideas to customer discovery and GTM.",
+          source: "seed",
+        },
+        {
+          id: "sample_joy_career",
+          name: "Joy Huang",
+          headline: "ML engineer mentoring newcomers into applied AI roles",
+          location: "Berkeley",
+          availability: "Remote evenings, occasional SF coffee",
+          interests: ["mentorship", "ML systems", "career transitions"],
+          expertise: ["resume review", "mock interviews", "ML project scoping"],
+          goals: ["support newcomers", "find serious mentees with project momentum"],
+          current_need: "Wants to mentor people with specific applied AI project questions.",
+          preferred_formats: ["remote chat", "mock interview", "project review"],
+          constraints: ["no generic job-referral asks"],
+          profile_summary: "ML mentor who is strongest when a newcomer has a concrete project or interview goal.",
+          source: "seed",
+        },
+      ];
+
+      function renderStats(profiles) {
+        const locations = {};
+        const sources = {};
+        profiles.forEach((p) => {
+          locations[p.location] = (locations[p.location] || 0) + 1;
+          sources[p.source] = (sources[p.source] || 0) + 1;
+        });
+
+        const topLocation = Object.entries(locations).sort((a, b) => b[1] - a[1])[0];
+
+        document.getElementById("stats").innerHTML = `
+          <div class="stat-card"><div class="value">${profiles.length}</div><div class="label">Total Profiles</div></div>
+          <div class="stat-card"><div class="value">${sources.seed || 0}</div><div class="label">Seed Profiles</div></div>
+          <div class="stat-card"><div class="value">${sources.user || 0}</div><div class="label">User Profiles</div></div>
+          <div class="stat-card"><div class="value">${Object.keys(locations).length}</div><div class="label">Locations</div></div>
+          <div class="stat-card"><div class="value">${topLocation ? topLocation[0] : "—"}</div><div class="label">Top Location</div></div>
+        `;
+      }
+
+      function renderProfiles(profiles) {
+        const grid = document.getElementById("profileGrid");
+
+        if (!profiles.length) {
+          grid.innerHTML = '<p class="no-results">No profiles match your filter.</p>';
+          return;
+        }
+
+        grid.innerHTML = profiles
+          .map(
+            (p) => `
+          <div class="profile-card">
+            <h3>${esc(p.name)}</h3>
+            <div class="headline">${esc(p.headline)}</div>
+            <div class="field">
+              <div class="field-label">Location</div>
+              <div class="field-value">${esc(p.location)} · ${esc(p.availability)}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Expertise</div>
+              <div class="field-value">${p.expertise.map((e) => `<span class="pill">${esc(e)}</span>`).join("")}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Goals</div>
+              <div class="field-value">${p.goals.map((g) => `<span class="pill">${esc(g)}</span>`).join("")}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Current Need</div>
+              <div class="field-value">${esc(p.current_need)}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Preferred Formats</div>
+              <div class="field-value">${p.preferred_formats.map((f) => `<span class="pill">${esc(f)}</span>`).join("")}</div>
+            </div>
+          </div>
+        `,
+          )
+          .join("");
+      }
+
+      function esc(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function filterProfiles(query) {
+        const q = query.toLowerCase();
+        if (!q) return PROFILES;
+        return PROFILES.filter((p) => {
+          const text = [
+            p.name,
+            p.headline,
+            p.location,
+            p.current_need,
+            ...p.expertise,
+            ...p.goals,
+            ...p.interests,
+          ]
+            .join(" ")
+            .toLowerCase();
+          return text.includes(q);
+        });
+      }
+
+      document.getElementById("filterInput").addEventListener("input", (e) => {
+        const filtered = filterProfiles(e.target.value);
+        renderProfiles(filtered);
+      });
+
+      renderStats(PROFILES);
+      renderProfiles(PROFILES);
+    </script>
+  </body>
+</html>
