@@ -263,6 +263,36 @@ Match output:
 - `risks`
 - `next_step_message`
 
+## Chat Process
+
+Flow 3: talk to a matched person.
+
+The chat feature is intentionally lightweight. It is not a real-time websocket chat; it is a simple conversation and message manager for hackathon follow-up.
+
+Backend responsibilities:
+
+1. Create or reuse a two-person conversation.
+2. List conversations for a participant.
+3. Load one conversation and its message history.
+4. Append messages to the conversation.
+5. Persist conversations to `chat_data/conversations.json`.
+
+Frontend responsibilities:
+
+1. Reuse the onboarded profile as the current chat user.
+2. Start a conversation manually or from a match card.
+3. Show conversation list and selected thread.
+4. Send short follow-up messages.
+
+Chat endpoints:
+
+- `GET /api/conversations?participant_id={id}`
+- `POST /api/conversations`
+- `GET /api/conversations/{conversation_id}`
+- `POST /api/conversations/{conversation_id}/messages`
+
+Generated chat data lives in `chat_data/`, which is ignored by git.
+
 ## Reference Products
 
 These references shape the product direction:

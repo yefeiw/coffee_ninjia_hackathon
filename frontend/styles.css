@@ -203,6 +203,10 @@ textarea {
   margin: 0;
 }
 
+.matchCard button {
+  margin-top: 12px;
+}
+
 .matchCard h3 {
   margin-bottom: 4px;
 }
@@ -230,6 +234,86 @@ pre {
   font-size: 12px;
 }
 
+.chatLayout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+  min-height: 430px;
+}
+
+.conversationList,
+.threadPanel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  min-width: 0;
+}
+
+.conversationList {
+  padding: 10px;
+}
+
+.conversationItem {
+  width: 100%;
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.conversationItem small,
+.messageMeta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.threadPanel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.threadHeader {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 14px;
+  font-weight: 700;
+}
+
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.messageBubble {
+  max-width: min(680px, 86%);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 11px;
+  background: #f2f5f8;
+}
+
+.messageBubble.mine {
+  align-self: flex-end;
+  border-color: #9cc9c4;
+  background: #e7f4f2;
+}
+
+.messageForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  padding: 12px;
+}
+
+.messageForm textarea {
+  min-height: 56px;
+}
+
 @media (max-width: 860px) {
   .topbar,
   .tabs {
@@ -238,7 +322,9 @@ pre {
   }
 
   .formGrid,
-  .matchGrid {
+  .matchGrid,
+  .chatLayout,
+  .messageForm {
     grid-template-columns: 1fr;
   }
 }
